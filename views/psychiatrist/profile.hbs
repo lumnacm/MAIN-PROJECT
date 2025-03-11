@@ -1,0 +1,100 @@
+<!-- Login Wrapper Area -->
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="  page-content-wrapper main-content">
+    <div class="container-lg">
+        <div class="text-center px-4"><img class="login-intro-img" src="assets/img/bg-img/36.png" alt=""></div>
+        <!-- Register Form -->
+
+        <div class="d-flex justify-content-between">
+            <a href="/psychiatrist" class="btn btn-sm btn-dark">
+                <i class="bi bi-arrow-left-short "></i> Back</a>
+            {{#if psychiatrist}}
+            <a href="/psychiatrist/edit-profile/{{psychiatrist._id}}" class="btn btn-sm btn-primary">
+                <i class="bi bi-pen "></i> Edit Profile</a>
+            {{/if}}
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card shadow w-100 mb-5 p-4 mt-3">
+
+                    <div class="register-form mt-4">
+                        <h4 class="mb-5 text-left">My Profile</h4>
+                        {{#if psychiatrist}}
+                        <form action="#!" method="">
+                            <img src="/images/psychiatrist-images/{{psychiatrist._id}}.png" width="10%"
+                                style="border-radius: 100px;" class="mb-4">
+                            <div class="form-group">
+                                <input class="form-control" type="text" readonly placeholder="{{psychiatrist.Name}}">
+                            </div>
+
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="email" name="Email" value={{psychiatrist.Email}} readonly>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="Phone" value={{psychiatrist.Phone}} readonly>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" name="Address" readonly>{{psychiatrist.Address}} </textarea>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-lg-7">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="District" value={{psychiatrist.District}}
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <input class="form-control" type="number" name="Pincode" value={{psychiatrist.Pincode}}
+                                    readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    </form>
+                    {{/if}}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow w-100 mb-5 p-4 mt-3">
+
+                    <div class="register-form mt-4">
+                        <h4 class="mb-5 text-left">Other Details</h4>
+                        {{#if psychiatrist}}
+                        <form action="#!" method="">
+
+                    </div>
+                    <div class="form-group">
+                        <label class="mb-2" for="">Qualication</label>
+                        <input class="form-control" type="text" name="Qualication"
+                            placeholder="No Qualication Available" readonly value={{psychiatrist.Qualication}}>
+                    </div>
+                    <div class="form-group">
+                        <label class="mb-2" for="">Experience</label>
+                        <input class="form-control" type="text" name="Experience" placeholder="No Experience Available"
+                            readonly value={{psychiatrist.Experience}}>
+                    </div>
+                    <div class="form-group">
+                        <label class="mb-2" for="">Specialisation</label>
+                        <input class="form-control" type="text" name="Specialisation"
+                            placeholder="No Specialisation Available" readonly value={{psychiatrist.Specialisation}}>
+                    </div>
+
+
+                    </form>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+</div>

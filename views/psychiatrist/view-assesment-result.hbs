@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Assessment Answers - {{assessmentTitle}}</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>{{assessmentTitle}}</h1>
+    {{#if questions}}
+      {{#each questions as |question qIndex|}}
+        <div class="card mb-3">
+          <div class="card-header">
+            Question {{addOne qIndex}}: {{question.questionText}}
+          </div>
+          <div class="card-body">
+            <p>
+              Your Answer:
+              {{!-- Use the optionText helper to retrieve the option text using the answer index --}}
+              {{optionText question.options (lookup ../answers qIndex)}}
+            </p>
+          </div>
+        </div>
+      {{/each}}
+    {{else}}
+      <p>No questions are available.</p>
+    {{/if}}
+  </div>
+</body>
+</html>

@@ -1,0 +1,1060 @@
+<main class="main">
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section light-background">
+
+        <img src="/images/img/m2.jpg" alt="" done="fade-in">
+
+        <div class="container position-relative">
+
+            <div class="welcome position-relative" done="fade-down" done-delay="100">
+                <h2>WELCOME TO MINDCARE</h2>
+                <p>Your Path to Better Mental Well-Being!</p>
+            </div><!-- End Welcome -->
+{{#if user}}
+            {{else}}
+            {{!-- <a class="cta-btn d-none d-sm-block" href="/signup">Get Started</a> --}}
+                    <button type="submit" class="btn btn-dark mt-3 w-30">Get Started</button>
+
+
+            {{/if}}
+            <div class="content row gy-4">
+                <div class="col-lg-4 d-flex align-items-stretch">
+                    <div class="why-box" done="zoom-out" done-delay="200">
+                        <h3>Why Choose MindCare?</h3>
+                        <p>
+Our platform is built by psychiatrists, therapists and mental health experts with immense global experience.                        </p>
+                        <div class="text-center">
+                            <a href="#about" class="more-btn"><span>Learn More</span> <i
+                                    class="bi bi-chevron-right"></i></a>
+                        </div>
+                    </div>
+                </div><!-- End Why Box -->
+
+                <div class="col-lg-8 d-flex align-items-stretch">
+                    <div class="d-flex flex-column justify-content-center">
+                        <div class="row gy-4">
+
+                            <div class="col-xl-4 d-flex align-items-stretch">
+                                <div class="icon-box" done="zoom-out" done-delay="300">
+                                    <i class="bi bi-clipboard-data"></i>
+                                    <h4>Integrated mental healthcare</h4>
+                                    <p>Access self-care tools, community support, and in-person or online therapy and psychiatry services.</p>
+                                </div>
+                            </div><!-- End Icon Box -->
+
+                            <div class="col-xl-4 d-flex align-items-stretch">
+                                <div class="icon-box" done="zoom-out" done-delay="400">
+                                    <i class="bi bi-gem"></i>
+                                    <h4>Personalised support</h4>
+                                    <p>Our treatment plans are tailored to your unique needs, so you can get the right care at the right time.</p>
+                                </div>
+                            </div><!-- End Icon Box -->
+
+                            <div class="col-xl-4 d-flex align-items-stretch">
+                                <div class="icon-box" done="zoom-out" done-delay="500">
+                                    <i class="bi bi-inboxes"></i>
+                                    <h4>Round the clock support</h4>
+                                    <p>Our mental healthcare offerings and services can be accessed from wherever you might be, all 7 days a week</p>
+                                </div>
+                            </div><!-- End Icon Box -->
+
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End  Content-->
+
+        </div>
+
+    </section><!-- /Hero Section -->
+
+
+    <!-- Doctors Section -->
+    <section id="doctors" class="doctors section">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Psychiatrist</h2>
+            <p>Find an expert who understands your needs.</p>
+        </div><!-- End Section Title -->
+
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-4">
+                    <input type="text" id="nameSearch" class="form-control" placeholder="Search by Name">
+                </div>
+                <div class="col-lg-4">
+                    <select id="specialisationSearch" class="form-control">
+                        <option value="">Filter by Specialisation</option>
+                        {{#each psychiatrists}}
+                        <option value="{{this.Specialisation}}">{{this.Specialisation}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="col-lg-4  text-center">
+                    <button id="searchBtn" class="btn w-100 btn-primary">Search</button>
+                </div>
+            </div>
+            <div class="row gy-4">
+
+
+
+                <div id="psychiatristList" class="row">
+                    {{#each psychiatrists}}
+                    <div class="col-lg-6 psychiatrist-card" data-name="{{this.Name}}"
+                        data-specialisation="{{this.Specialisation}}">
+                        <div class="team-member d-flex align-items-start">
+                            <div class="pic">
+                                <img src="/images/psychiatrist-images/{{this._id}}.png" class="img-fluid" alt="">
+                            </div>
+                            <div class="member-info mt-5">
+                                <h4>{{this.Name}}</h4>
+                                <span>{{this.Specialisation}}, {{this.Qualication}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section><!-- /Doctors Section -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const nameInput = document.getElementById("nameSearch");
+            const specialisationSelect = document.getElementById("specialisationSearch");
+            const searchBtn = document.getElementById("searchBtn");
+            const psychiatristCards = document.querySelectorAll(".psychiatrist-card");
+
+            function filterPsychiatrists() {
+                const nameFilter = nameInput.value.toLowerCase().trim();
+                const specialisationFilter = specialisationSelect.value.toLowerCase();
+
+                psychiatristCards.forEach(card => {
+                    const name = card.getAttribute("data-name").toLowerCase();
+                    const specialisation = card.getAttribute("data-specialisation").toLowerCase();
+
+                    // Filter logic
+                    if (
+                        (name.includes(nameFilter) || !nameFilter) &&
+                        (specialisation.includes(specialisationFilter) || !specialisationFilter)
+                    ) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            }
+
+            // Trigger filtering when the search button is clicked
+            searchBtn.addEventListener("click", filterPsychiatrists);
+        });
+    </script>
+
+
+    <!-- About Section -->
+    <section id="about" class="about section">
+
+        <div class="container">
+
+            <div class="row gy-4 gx-5">
+
+                <div class="col-lg-6 position-relative align-self-start" done="fade-up" done-delay="200">
+                    <img src="/images/img/m2.jpg" class="img-fluid" alt="">
+                    
+                    {{!-- <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn"></a> --}}
+                </div>
+
+                <div class="col-lg-6 content" done="fade-up" done-delay="100">
+                    <h3>About Us</h3>
+                    <p>
+                       We are a mental health ecosystem that brings together multiple treatment options to create an experience that makes getting help easy and seamless. From assessment to treatment, we’re with you every step of the way.
+                    </p>
+                    <ul>
+                        <li>
+                            <i class="fa-solid fa-vial-circle-check"></i>
+                            <div>
+                                <h5>Our Mission </h5>
+                                <p>To help you feel better, get better and stay better.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-pump-medical"></i>
+                            <div>
+                                <h5>Our Vision</h5>
+                                <p>We bring together self-care, support from qualified therapists and psychiatrists, as well as community access to deliver the best quality mental healthcare for your needs.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-heart-circle-xmark"></i>
+                            <div>
+                                <h5>Therapy & Psychiatry</h5>
+                                <p>Our in-house team of mental health therapist and psychiatrists is highly qualified and trained to deliver quality and compassionate clinical treatment.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section><!-- /About Section -->
+
+
+
+
+
+    {{!-- <!-- Stats Section -->
+    <section id="stats" class="stats section light-background">
+
+        <div class="container" done="fade-up" done-delay="100">
+
+            <div class="row gy-4">
+
+                <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <div class="stats-item">
+                        <span data-purecounter-start="0" data-purecounter-end="85" data-purecounter-duration="1"
+                            class="purecounter"></span>
+                        <p>Psychiatrist</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+                <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+                    <i class="fa-regular fa-hospital"></i>
+                    <div class="stats-item">
+                        <span data-purecounter-start="0" data-purecounter-end="18" data-purecounter-duration="1"
+                            class="purecounter"></span>
+                        <p>Departments</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+                <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+                    <i class="fas fa-flask"></i>
+                    <div class="stats-item">
+                        <span data-purecounter-start="0" data-purecounter-end="12" data-purecounter-duration="1"
+                            class="purecounter"></span>
+                        <p>Research Labs</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+                <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center">
+                    <i class="fas fa-award"></i>
+                    <div class="stats-item">
+                        <span data-purecounter-start="0" data-purecounter-end="150" data-purecounter-duration="1"
+                            class="purecounter"></span>
+                        <p>Awards</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+            </div>
+
+        </div>
+
+    </section><!-- /Stats Section --> --}}
+
+
+
+    <!-- Services Section -->
+    <section id="services" class="services section">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Services</h2>
+            <p>MindCare is dedicated to fostering mental well-being by connecting individuals with professional support in a secure and compassionate environment.</p>
+        </div><!-- End Section Title -->
+
+        <div class="container">
+
+            <div class="row gy-4">
+
+                <div class="col-lg-4 col-md-6" done="fade-up" done-delay="100">
+                    <div class="service-item  position-relative">
+                        <div class="icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <a href="#" class="stretched-link">
+                            <h3>Adult Psychiatry</h3>
+                        </a>
+                        <p>Getting psychiatric help can be daunting. Our highly experienced psychiatrists will keep you at the center, at all times in your journey towards recovery.</p>
+                    </div>
+                </div><!-- End Service Item -->
+
+                <div class="col-lg-4 col-md-6" done="fade-up" done-delay="200">
+                    <div class="service-item position-relative">
+                        <div class="icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <a href="#" class="stretched-link">
+                            <h3>Couples & Family Counseling</h3>
+                        </a>
+                        <p> Helps improve communication, resolve conflicts, and strengthen relationships by providing professional guidance and support tailored to family dynamics.</p>
+                    </div>
+                </div><!-- End Service Item -->
+
+                <div class="col-lg-4 col-md-6" done="fade-up" done-delay="300">
+                    <div class="service-item position-relative">
+                        <div class="icon">
+                            <i class="fas fa-hospital-user"></i>
+                        </div>
+                        <a href="#" class="stretched-link">
+                            <h3>Self Care</h3>
+                        </a>
+                        <p>Self-care has never been easier. Get the MindCare to access expert-curated activities, trackers, resources and a lot more!</p>
+                    </div>
+                </div><!-- End Service Item -->
+
+                <div class="col-lg-4 col-md-6" done="fade-up" done-delay="400">
+                    <div class="service-item position-relative">
+                        <div class="icon">
+                            <i class="fas fa-dna"></i>
+                        </div>
+                        <a href="#" class="stretched-link">
+                            <h3>Community</h3>
+                        </a>
+                        <p>We're building a community for people to share their struggles, connect with others, find support, learn and grow - in a safe space monitored by trained moderators.</p>
+                        <a href="#" class="stretched-link"></a>
+                    </div>
+                </div><!-- End Service Item -->
+
+                <div class="col-lg-4 col-md-6" done="fade-up" done-delay="500">
+                    <div class="service-item position-relative">
+                        <div class="icon">
+                            <i class="fas fa-wheelchair"></i>
+                        </div>
+                        <a href="#" class="stretched-link">
+                            <h3>Psychometric Assessments</h3>
+                        </a>
+                        <p>Take our clinical assessments administered by trained therapists and psychiatrists .</p>
+                        <a href="#" class="stretched-link"></a>
+                    </div>
+                </div><!-- End Service Item -->
+
+                <div class="col-lg-4 col-md-6" done="fade-up" done-delay="600">
+                    <div class="service-item position-relative">
+                        <div class="icon">
+                            <i class="fas fa-notes-medical"></i>
+                        </div>
+                        <a href="#" class="stretched-link">
+                            <h3>Children First Services</h3>
+                        </a>
+                        <p>Helping you and your child navigate through developmental, emotional, or mental health challenges with safe, ethical and nurturing care.</p>
+                        <a href="#" class="stretched-link"></a>
+                    </div>
+                </div><!-- End Service Item -->
+
+            </div>
+
+        </div>
+
+    </section><!-- /Services Section -->
+
+    {{!-- <!-- Appointment Section -->
+    <section id="appointment" class="appointment section">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Appointment</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        </div><!-- End Section Title --> --}}
+{{!-- 
+        <div class="container" done="fade-up" done-delay="100">
+
+            <form action="forms/appointment.php" method="post" role="form" class="php-email-form">
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Your Name"
+                            required="">
+                    </div>
+                    <div class="col-md-4 form-group mt-3 mt-md-0">
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Your Email"
+                            required="">
+                    </div>
+                    <div class="col-md-4 form-group mt-3 mt-md-0">
+                        <input type="tel" class="form-control" name="phone" id="phone" placeholder="Your Phone"
+                            required="">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 form-group mt-3">
+                        <input type="datetime-local" name="date" class="form-control datepicker" id="date"
+                            placeholder="Appointment Date" required="">
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <select name="department" id="department" class="form-select" required="">
+                            <option value="">Select Department</option>
+                            <option value="Department 1">Department 1</option>
+                            <option value="Department 2">Department 2</option>
+                            <option value="Department 3">Department 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <select name="doctor" id="doctor" class="form-select" required="">
+                            <option value="">Select Doctor</option>
+                            <option value="Doctor 1">Doctor 1</option>
+                            <option value="Doctor 2">Doctor 2</option>
+                            <option value="Doctor 3">Doctor 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <textarea class="form-control" name="message" rows="5" placeholder="Message (Optional)"></textarea>
+                </div>
+                <div class="mt-3">
+                    <div class="loading">Loading</div>
+                    <div class="error-message"></div>
+                    <div class="sent-message">Your appointment request has been sent successfully. Thank you!</div>
+                    <div class="text-center"><button type="submit">Make an Appointment</button></div>
+                </div>
+            </form>
+
+        </div>
+
+    </section><!-- /Appointment Section -->
+
+    <!-- Departments Section -->
+    <section id="departments" class="departments section">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Departments</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        </div><!-- End Section Title -->
+
+        <div class="container" done="fade-up" done-delay="100">
+
+            <div class="row">
+                <div class="col-lg-3">
+                    <ul class="nav nav-tabs flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active show" data-bs-toggle="tab"
+                                href="#departments-tab-1">Cardiology</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#departments-tab-2">Neurology</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#departments-tab-3">Hepatology</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#departments-tab-4">Pediatrics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#departments-tab-5">Eye Care</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-9 mt-4 mt-lg-0">
+                    <div class="tab-content">
+                        <div class="tab-pane active show" id="departments-tab-1">
+                            <div class="row">
+                                <div class="col-lg-8 details order-2 order-lg-1">
+                                    <h3>Cardiology</h3>
+                                    <p class="fst-italic">Qui laudantium consequatur laborum sit qui ad sapiente dila
+                                        parde sonata raqer a videna mareta paulona marka</p>
+                                    <p>Et nobis maiores eius. Voluptatibus ut enim blanditiis atque harum sint. Laborum
+                                        eos ipsum ipsa odit magni. Incidunt hic ut molestiae aut qui. Est repellat
+                                        minima eveniet eius et quis magni nihil. Consequatur dolorem quaerat quos qui
+                                        similique accusamus nostrum rem vero</p>
+                                </div>
+                                <div class="col-lg-4 text-center order-1 order-lg-2">
+                                    <img src="/assets2/img/departments-1.jpg" alt="" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="departments-tab-2">
+                            <div class="row">
+                                <div class="col-lg-8 details order-2 order-lg-1">
+                                    <h3>Et blanditiis nemo veritatis excepturi</h3>
+                                    <p class="fst-italic">Qui laudantium consequatur laborum sit qui ad sapiente dila
+                                        parde sonata raqer a videna mareta paulona marka</p>
+                                    <p>Ea ipsum voluptatem consequatur quis est. Illum error ullam omnis quia et
+                                        reiciendis sunt sunt est. Non aliquid repellendus itaque accusamus eius et velit
+                                        ipsa voluptates. Optio nesciunt eaque beatae accusamus lerode pakto madirna
+                                        desera vafle de nideran pal</p>
+                                </div>
+                                <div class="col-lg-4 text-center order-1 order-lg-2">
+                                    <img src="/assets2/img/departments-2.jpg" alt="" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="departments-tab-3">
+                            <div class="row">
+                                <div class="col-lg-8 details order-2 order-lg-1">
+                                    <h3>Impedit facilis occaecati odio neque aperiam sit</h3>
+                                    <p class="fst-italic">Eos voluptatibus quo. Odio similique illum id quidem non enim
+                                        fuga. Qui natus non sunt dicta dolor et. In asperiores velit quaerat perferendis
+                                        aut</p>
+                                    <p>Iure officiis odit rerum. Harum sequi eum illum corrupti culpa veritatis
+                                        quisquam. Neque necessitatibus illo rerum eum ut. Commodi ipsam minima molestiae
+                                        sed laboriosam a iste odio. Earum odit nesciunt fugiat sit ullam. Soluta et
+                                        harum voluptatem optio quae</p>
+                                </div>
+                                <div class="col-lg-4 text-center order-1 order-lg-2">
+                                    <img src="/assets2/img/departments-3.jpg" alt="" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="departments-tab-4">
+                            <div class="row">
+                                <div class="col-lg-8 details order-2 order-lg-1">
+                                    <h3>Fuga dolores inventore laboriosam ut est accusamus laboriosam dolore</h3>
+                                    <p class="fst-italic">Totam aperiam accusamus. Repellat consequuntur iure voluptas
+                                        iure porro quis delectus</p>
+                                    <p>Eaque consequuntur consequuntur libero expedita in voluptas. Nostrum ipsam
+                                        necessitatibus aliquam fugiat debitis quis velit. Eum ex maxime error in
+                                        consequatur corporis atque. Eligendi asperiores sed qui veritatis aperiam quia a
+                                        laborum inventore</p>
+                                </div>
+                                <div class="col-lg-4 text-center order-1 order-lg-2">
+                                    <img src="/assets2/img/departments-4.jpg" alt="" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="departments-tab-5">
+                            <div class="row">
+                                <div class="col-lg-8 details order-2 order-lg-1">
+                                    <h3>Est eveniet ipsam sindera pad rone matrelat sando reda</h3>
+                                    <p class="fst-italic">Omnis blanditiis saepe eos autem qui sunt debitis porro quia.
+                                    </p>
+                                    <p>Exercitationem nostrum omnis. Ut reiciendis repudiandae minus. Omnis recusandae
+                                        ut non quam ut quod eius qui. Ipsum quia odit vero atque qui quibusdam amet.
+                                        Occaecati sed est sint aut vitae molestiae voluptate vel</p>
+                                </div>
+                                <div class="col-lg-4 text-center order-1 order-lg-2">
+                                    <img src="/assets2/img/departments-5.jpg" alt="" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </section><!-- /Departments Section -->
+
+
+
+    <!-- Faq Section -->
+    <section id="faq" class="faq section light-background">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Frequently Asked Questions</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        </div><!-- End Section Title -->
+
+        <div class="container">
+
+            <div class="row justify-content-center">
+
+                <div class="col-lg-10" done="fade-up" done-delay="100">
+
+                    <div class="faq-container">
+
+                        <div class="faq-item faq-active">
+                            <h3>Non consectetur a erat nam at lectus urna duis?</h3>
+                            <div class="faq-content">
+                                <p>Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet
+                                    non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor
+                                    purus non.</p>
+                            </div>
+                            <i class="faq-toggle bi bi-chevron-right"></i>
+                        </div><!-- End Faq item-->
+
+                        <div class="faq-item">
+                            <h3>Feugiat scelerisque varius morbi enim nunc faucibus?</h3>
+                            <div class="faq-content">
+                                <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum
+                                    velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend
+                                    donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in
+                                    cursus turpis massa tincidunt dui.</p>
+                            </div>
+                            <i class="faq-toggle bi bi-chevron-right"></i>
+                        </div><!-- End Faq item-->
+
+                        <div class="faq-item">
+                            <h3>Dolor sit amet consectetur adipiscing elit pellentesque?</h3>
+                            <div class="faq-content">
+                                <p>Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus
+                                    pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit.
+                                    Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis
+                                    tellus. Urna molestie at elementum eu facilisis sed odio morbi quis</p>
+                            </div>
+                            <i class="faq-toggle bi bi-chevron-right"></i>
+                        </div><!-- End Faq item-->
+
+                        <div class="faq-item">
+                            <h3>Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla?</h3>
+                            <div class="faq-content">
+                                <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum
+                                    velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend
+                                    donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in
+                                    cursus turpis massa tincidunt dui.</p>
+                            </div>
+                            <i class="faq-toggle bi bi-chevron-right"></i>
+                        </div><!-- End Faq item-->
+
+                        <div class="faq-item">
+                            <h3>Tempus quam pellentesque nec nam aliquam sem et tortor?</h3>
+                            <div class="faq-content">
+                                <p>Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in
+                                    est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl
+                                    suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in</p>
+                            </div>
+                            <i class="faq-toggle bi bi-chevron-right"></i>
+                        </div><!-- End Faq item-->
+
+                        <div class="faq-item">
+                            <h3>Perspiciatis quod quo quos nulla quo illum ullam?</h3>
+                            <div class="faq-content">
+                                <p>Enim ea facilis quaerat voluptas quidem et dolorem. Quis et consequatur non sed in
+                                    suscipit sequi. Distinctio ipsam dolore et.</p>
+                            </div>
+                            <i class="faq-toggle bi bi-chevron-right"></i>
+                        </div><!-- End Faq item-->
+
+                    </div>
+
+                </div><!-- End Faq Column-->
+
+            </div>
+
+        </div>
+
+    </section><!-- /Faq Section -->
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials section">
+
+        <div class="container">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-5 info" done="fade-up" done-delay="100">
+                    <h3>Testimonials</h3>
+                    <p>
+                        Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+                        in voluptate
+                        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+                        proident.
+                    </p>
+                </div>
+
+                <div class="col-lg-7" done="fade-up" done-delay="200">
+
+                    <div class="swiper init-swiper">
+                        <script type="application/json" class="swiper-config">
+                {
+                  "loop": true,
+                  "speed": 600,
+                  "autoplay": {
+                    "delay": 5000
+                  },
+                  "slidesPerView": "auto",
+                  "pagination": {
+                    "el": ".swiper-pagination",
+                    "type": "bullets",
+                    "clickable": true
+                  }
+                }
+              </script>
+                        <div class="swiper-wrapper">
+
+                            <div class="swiper-slide">
+                                <div class="testimonial-item">
+                                    <div class="d-flex">
+                                        <img src="/assets2/img/testimonials/testimonials-1.jpg"
+                                            class="testimonial-img flex-shrink-0" alt="">
+                                        <div>
+                                            <h3>Saul Goodman</h3>
+                                            <h4>Ceo &amp; Founder</h4>
+                                            <div class="stars">
+                                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <i class="bi bi-quote quote-icon-left"></i>
+                                        <span>Proin iaculis purus consequat sem cure digni ssim donec porttitora entum
+                                            suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et.
+                                            Maecen aliquam, risus at semper.</span>
+                                        <i class="bi bi-quote quote-icon-right"></i>
+                                    </p>
+                                </div>
+                            </div><!-- End testimonial item -->
+
+                            <div class="swiper-slide">
+                                <div class="testimonial-item">
+                                    <div class="d-flex">
+                                        <img src="/assets2/img/testimonials/testimonials-2.jpg"
+                                            class="testimonial-img flex-shrink-0" alt="">
+                                        <div>
+                                            <h3>Sara Wilsson</h3>
+                                            <h4>Designer</h4>
+                                            <div class="stars">
+                                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <i class="bi bi-quote quote-icon-left"></i>
+                                        <span>Export tempor illum tamen malis malis eram quae irure esse labore quem
+                                            cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua
+                                            noster fugiat irure amet legam anim culpa.</span>
+                                        <i class="bi bi-quote quote-icon-right"></i>
+                                    </p>
+                                </div>
+                            </div><!-- End testimonial item -->
+
+                            <div class="swiper-slide">
+                                <div class="testimonial-item">
+                                    <div class="d-flex">
+                                        <img src="/assets2/img/testimonials/testimonials-3.jpg"
+                                            class="testimonial-img flex-shrink-0" alt="">
+                                        <div>
+                                            <h3>Jena Karlis</h3>
+                                            <h4>Store Owner</h4>
+                                            <div class="stars">
+                                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <i class="bi bi-quote quote-icon-left"></i>
+                                        <span>Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla
+                                            quem veniam duis minim tempor labore quem eram duis noster aute amet eram
+                                            fore quis sint minim.</span>
+                                        <i class="bi bi-quote quote-icon-right"></i>
+                                    </p>
+                                </div>
+                            </div><!-- End testimonial item -->
+
+                            <div class="swiper-slide">
+                                <div class="testimonial-item">
+                                    <div class="d-flex">
+                                        <img src="/assets2/img/testimonials/testimonials-4.jpg"
+                                            class="testimonial-img flex-shrink-0" alt="">
+                                        <div>
+                                            <h3>Matt Brandon</h3>
+                                            <h4>Freelancer</h4>
+                                            <div class="stars">
+                                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <i class="bi bi-quote quote-icon-left"></i>
+                                        <span>Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export
+                                            minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt
+                                            elit fore quem dolore labore illum veniam.</span>
+                                        <i class="bi bi-quote quote-icon-right"></i>
+                                    </p>
+                                </div>
+                            </div><!-- End testimonial item -->
+
+                            <div class="swiper-slide">
+                                <div class="testimonial-item">
+                                    <div class="d-flex">
+                                        <img src="/assets2/img/testimonials/testimonials-5.jpg"
+                                            class="testimonial-img flex-shrink-0" alt="">
+                                        <div>
+                                            <h3>John Larson</h3>
+                                            <h4>Entrepreneur</h4>
+                                            <div class="stars">
+                                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                                                    class="bi bi-star-fill"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <i class="bi bi-quote quote-icon-left"></i>
+                                        <span>Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam
+                                            tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum
+                                            fugiat legam esse veniam culpa fore nisi cillum quid.</span>
+                                        <i class="bi bi-quote quote-icon-right"></i>
+                                    </p>
+                                </div>
+                            </div><!-- End testimonial item -->
+
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section><!-- /Testimonials Section -->
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery section">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Gallery</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        </div><!-- End Section Title -->
+
+        <div class="container-fluid" done="fade-up" done-delay="100">
+
+            <div class="row g-0">
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-1.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-1.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-2.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-2.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-3.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-3.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-4.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-4.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-5.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-5.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-6.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-6.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-7.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-7.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+                <div class="col-lg-3 col-md-4">
+                    <div class="gallery-item">
+                        <a href="/assets2/img/gallery/gallery-8.jpg" class="glightbox" data-gallery="images-gallery">
+                            <img src="/assets2/img/gallery/gallery-8.jpg" alt="" class="img-fluid">
+                        </a>
+                    </div>
+                </div><!-- End Gallery Item -->
+
+            </div>
+
+        </div>
+
+    </section><!-- /Gallery Section -->
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+        <!-- Section Title -->
+        <div class="container section-title" done="fade-up">
+            <h2>Contact</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        </div><!-- End Section Title -->
+
+        <div class="mb-5" done="fade-up" done-delay="200">
+            <iframe style="border:0; width: 100%; height: 270px;"
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d48389.78314118045!2d-74.006138!3d40.710059!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a22a3bda30d%3A0xb89d1fe6bc499443!2sDowntown%20Conference%20Center!5e0!3m2!1sen!2sus!4v1676961268712!5m2!1sen!2sus"
+                frameborder="0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div><!-- End Google Maps -->
+
+        <div class="container" done="fade-up" done-delay="100">
+
+            <div class="row gy-4">
+
+                <div class="col-lg-4">
+                    <div class="info-item d-flex" done="fade-up" done-delay="300">
+                        <i class="bi bi-geo-alt flex-shrink-0"></i>
+                        <div>
+                            <h3>Location</h3>
+                            <p>A108 Adam Street, New York, NY 535022</p>
+                        </div>
+                    </div><!-- End Info Item -->
+
+                    <div class="info-item d-flex" done="fade-up" done-delay="400">
+                        <i class="bi bi-telephone flex-shrink-0"></i>
+                        <div>
+                            <h3>Call Us</h3>
+                            <p>+1 5589 55488 55</p>
+                        </div>
+                    </div><!-- End Info Item -->
+
+                    <div class="info-item d-flex" done="fade-up" done-delay="500">
+                        <i class="bi bi-envelope flex-shrink-0"></i>
+                        <div>
+                            <h3>Email Us</h3>
+                            <p>info@example.com</p>
+                        </div>
+                    </div><!-- End Info Item -->
+
+                </div>
+
+                <div class="col-lg-8">
+                    <form action="forms/contact.php" method="post" class="php-email-form" done="fade-up"
+                        done-delay="200">
+                        <div class="row gy-4">
+
+                            <div class="col-md-6">
+                                <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
+                            </div>
+
+                            <div class="col-md-6 ">
+                                <input type="email" class="form-control" name="email" placeholder="Your Email"
+                                    required="">
+                            </div>
+
+                            <div class="col-md-12">
+                                <input type="text" class="form-control" name="subject" placeholder="Subject"
+                                    required="">
+                            </div>
+
+                            <div class="col-md-12">
+                                <textarea class="form-control" name="message" rows="6" placeholder="Message"
+                                    required=""></textarea>
+                            </div>
+
+                            <div class="col-md-12 text-center">
+                                <div class="loading">Loading</div>
+                                <div class="error-message"></div>
+                                <div class="sent-message">Your message has been sent. Thank you!</div>
+
+                                <button type="submit">Send Message</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div><!-- End Contact Form -->
+
+            </div>
+
+        </div>
+
+    </section><!-- /Contact Section -->
+
+</main> --}}
+
+<footer id="footer" class="footer light-background">
+
+    <div class="container footer-top">
+        <div class="row gy-4">
+            <div class="col-lg-4 col-md-6 footer-about">
+                <a href="index.html" class="logo d-flex align-items-center">
+                    <span class="sitename">MindCare</span>
+                </a>
+                <div class="footer-contact pt-3">
+                    <p> Calicut,Kerala</p>
+                    <p>India, 673001</p>
+                    <p class="mt-3"><strong>Phone:</strong> <span>+91 9074965149</span></p>
+                    <p><strong>Email:</strong> <span>MindCare@gmail.com.com</span></p>
+                </div>
+                {{!-- <div class="social-links d-flex mt-4">
+                    <a href=""><i class="bi bi-twitter-x"></i></a>
+                    <a href=""><i class="bi bi-facebook"></i></a>
+                    <a href=""><i class="bi bi-instagram"></i></a>
+                    <a href=""><i class="bi bi-linkedin"></i></a>
+                </div> --}}
+            </div>
+
+            <div class="col-lg-2 col-md-3 footer-links">
+                <h4>Useful Links</h4>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Terms of service</a></li>
+                    <li><a href="#">Privacy policy</a></li>
+                </ul>
+            </div>
+
+            {{!-- <div class="col-lg-2 col-md-3 footer-links">
+                <h4>Our Services</h4>
+                <ul>
+                    <li><a href="#">Web Design</a></li>
+                    <li><a href="#">Web Development</a></li>
+                    <li><a href="#">Product Management</a></li>
+                    <li><a href="#">Marketing</a></li>
+                    <li><a href="#">Graphic Design</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-3 footer-links">
+                <h4>Hic solutasetp</h4>
+                <ul>
+                    <li><a href="#">Molestiae accusamus iure</a></li>
+                    <li><a href="#">Excepturi dignissimos</a></li>
+                    <li><a href="#">Suscipit distinctio</a></li>
+                    <li><a href="#">Dilecta</a></li>
+                    <li><a href="#">Sit quas consectetur</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-3 footer-links">
+                <h4>Nobis illum</h4>
+                <ul>
+                    <li><a href="#">Ipsam</a></li>
+                    <li><a href="#">Laudantium dolorum</a></li>
+                    <li><a href="#">Dinera</a></li>
+                    <li><a href="#">Trodelas</a></li>
+                    <li><a href="#">Flexo</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div> --}}
+
+    <div class="container copyright text-center mt-4">
+        <p>© <span>Copyright</span> <strong class="px-1 sitename">MindCare</strong> <span>All Rights Reserved</span></p>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you've purchased the pro version. -->
+            <!-- Licensing information: https://bootstrapmade.com/license/ -->
+            <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
+            {{!-- Designed by <a href="https://bootstrapmade.com/"></a> --}}
+        </div>
+    </div>
+
+</footer>

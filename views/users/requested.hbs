@@ -1,0 +1,32 @@
+<div class="container mt-20 mb-30">
+    <div class="card">
+        <div class="card-header border-bottom border-gray-100 flex-align gap-8">
+            <h5 class="mb-0">Socity Registration</h5>
+
+        </div>
+        <div class="card-body">
+            <h4><i class="bi bi-check-circle text-success me-4"></i> Your Application has been submitted successfully
+            </h4>
+            {{#each registrations}}
+            <button class="btn btn-warning mt-5">Status : {{this.status}}</button>
+            {{/each}}
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    // Get current date and time
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = ((now.getHours() + 11) % 12 + 1).toString().padStart(2, '0'); // Convert to 12-hour format
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+
+    // Set default value to current date and time in 12-hour format with AM/PM
+    const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('datetime').value = defaultDateTime;
+</script>

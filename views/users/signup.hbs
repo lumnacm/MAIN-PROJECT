@@ -1,0 +1,289 @@
+<style>
+    .login-container {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-content {
+        background: #fff;
+        border-radius: 8px;
+    }
+
+    .left-image {
+        background: url('/assets2/img/hero-bg.jpg') no-repeat center center;
+        background-size: cover;
+        height: 100%;
+    }
+
+    .signin-btn {
+        background-color: black;
+        color: white;
+        border: none;
+    }
+
+    .signin-btn:hover {
+        background-color: #333;
+    }
+
+    .signup-link {
+        text-decoration: none;
+        color: black;
+    }
+
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+
+<div class="container-fluid">
+    <div class="row login-container ">
+        <div class="col-md-7 left-image d-none d-md-block"></div>
+        <div class="col-md-5 d-flex align-items-center justify-content-center">
+
+            <div class="login-content ">
+                <br><br><br>
+                <h3 class="mb-1">Create New Account </h3>
+                <p class="mb-4">Login to continue with this app</p>
+                {{#if signInErr}}
+                <p class="text-danger text-center ">{{signInErr}}</p>
+                {{/if}}
+                <form action="/signup" method="POST" class="gy-20" autocomplete="off">
+                    <input type="hidden" name="date" id="datetime">
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="text" class="form-label mb-8 h6">First Name</label>
+                            <div class="position-relative">
+                                <input class="form-control py-11 ps-40" id="fname" type="text" name="Fname"
+                                    value="{{Fname}}" placeholder="Your First Name" pattern="[A-Za-z\s]+"
+                                    title="Only letters are allowed">
+
+                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex"><i
+                                        class="ph ph-user"></i></span>
+
+                            </div>
+                            <small id="fnameError" class="text-danger" style="display: none;">Only letters
+                                are allowed</small>
+
+                            {{#if errors.fname}}<div class="text-danger">{{errors.fname}}</div>{{/if}}
+                        </div>
+                        <div class="col-6">
+                            <label for="text" class="form-label mb-8 h6">Last Name</label>
+                            <div class="position-relative">
+                                <input class="form-control py-11 ps-40" id="text" type="text" name="Lname"
+                                    value="{{Lname}}" placeholder="Your Last Name" pattern="[A-Za-z\s]+"
+                                    title="Only letters are allowed">
+
+                                <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex"><i
+                                        class="ph ph-user"></i></span>
+                            </div>
+                            {{#if errors.lname}}<div class="text-danger">{{errors.lname}}</div>{{/if}}
+                        </div>
+                    </div>
+
+
+                    <label for="email" class="form-label mb-8 h6">Email</label>
+                    <div class="position-relative  ">
+                        <input class="form-control py-11 ps-40" id="email" type="email" name="Email" value="{{Email}}"
+                            placeholder="Your Email">
+
+                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex"><i
+                                class="ph ph-user"></i></span>
+                    </div>
+                    <small id="emailError" class="text-danger" style="display: none;">Enter a valid email
+                        address</small>
+
+                    {{#if errors.email}}<div class="text-danger">{{errors.email}}</div>{{/if}}
+
+
+
+                    <label for="phone Number" class="form-label mb-8 mt-3 h6">Phone Number</label>
+                    <div class="position-relative  mb-3">
+                        <input class="form-control py-11 ps-40" id="mobileNumber" type="number" name="Phone"
+                            value="{{Phone}}" placeholder="Your Phone Number">
+
+                        <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex"><i
+                                class="ph ph-user"></i></span>
+                    </div>
+                    <small id="mobileError" class="text-danger" style="display: none;">Mobile number must be 10
+                        digits</small>
+                    {{#if errors.phone}}<div class="text-danger">{{errors.phone}}</div>{{/if}}
+
+
+
+                    <div class=" mb-3">
+                        <label for="current-password" class="form-label mb-8 h6"> Password</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11 ps-40" id="current-password" name="Password"
+                                value="{{Password}}" type="password" placeholder="Enter Password" required
+                                minlength="8">
+                            <span
+                                class="toggle-password position-absolute top-50 inset-inline-end-0 me-16 translate-middle-y ph ph-eye-slash"
+                                id="toggle-password"></span>
+                            <span class="position-absolute top-50 translate-middle-y ms-16 text-gray-600 d-flex">
+                                <i class="ph ph-lock"></i>
+                            </span>
+                        </div>
+                        <small id="passwordError" class="text-danger" style="display: none;">Password must be at least 8
+                            characters long</small>
+                        {{#if errors.password}}<div class="text-danger">{{errors.password}}</div>{{/if}}
+                    </div>
+                    <div class="mb-32 flex-between flex-wrap gap-8">
+
+                        {{!-- <a href="forgot-password.html"
+                            class="text-main-600 hover-text-decoration-underline text-15 fw-medium">Forgot Password?</a>
+                        --}}
+                    </div>
+                    <button type="submit" class="btn btn-dark mt-3 w-100">Sign Up</button>
+
+                </form>
+                <center>
+                    <p class="mt-3">
+                        Already have an account?
+                        <a href="/signin" class="signup-link">Signin Now</a>
+                    </p>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        function searchPin() {
+            let pin = document.getElementById("text").value;
+            $.getJSON("https://api.postalpincode.in/pincode/" + pin, function (data) {
+                createHTML(data);
+            });
+
+            function createHTML(data) {
+                var htmlElements = " ";
+                var msg = "";
+
+                // Check if PostOffice array exists and has items
+                if (data[0].PostOffice && data[0].PostOffice.length) {
+                    // Limit to the first item in the PostOffice array
+                    var postOffice = data[0].PostOffice[0];
+
+                    // Set District and State input fields
+                    document.getElementById("district").value = postOffice.District || ''; // Update District field
+                    document.getElementById("state").value = postOffice.State || ''; // Update State field
+
+                    // Create HTML for the first PostOffice item
+                    htmlElements += '<div class="col-sm-4"><div class="card"><div class="list-group"><h4>' + postOffice.District + '</h4><p>PostOffice :<span class="pull-right">' + postOffice.State + '</span></p></div></div></div>';
+                } else {
+                    alert('Enter Valid pincode');
+                }
+
+                // Update the HTML content
+                var htmlView = document.getElementById("mkslider");
+                htmlView.innerHTML = htmlElements;
+                var msgView = document.getElementById("total-msg");
+                msgView.innerHTML = msg;
+            }
+
+            setTimeout(function () {
+                $('#close').trigger('click');
+            }, 3000);
+        }
+
+        $(document).on("click", '#close', function () {
+            $('#total-msg').remove();
+        });
+
+        document.getElementById("submit").addEventListener("click", searchPin);
+    });
+
+</script>
+
+<script>
+    // Get current date and time
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = ((now.getHours() + 11) % 12 + 1).toString().padStart(2, '0'); // Convert to 12-hour format
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+
+    // Set default value to current date and time in 12-hour format with AM/PM
+    const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('datetime').value = defaultDateTime;
+
+
+
+    document.getElementById("fname").addEventListener("input", function () {
+        let fnameInput = this.value.trim();
+        let errorMsg = document.getElementById("fnameError");
+
+        // Regex pattern: Only letters and spaces allowed
+        let namePattern = /^[A-Za-z\s]+$/;
+
+        if (namePattern.test(fnameInput) || fnameInput === "") {
+            errorMsg.style.display = "none"; // Hide error message
+            this.style.borderColor = ""; // Reset border color
+        } else {
+            errorMsg.style.display = "block"; // Show error message
+            this.style.borderColor = "red"; // Highlight input field
+        }
+    });
+
+    document.getElementById("email").addEventListener("input", function () {
+        let emailInput = this.value.trim();
+        let errorMsg = document.getElementById("emailError");
+
+        // Email validation regex pattern
+        let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        // Check if email matches pattern
+        if (emailPattern.test(emailInput)) {
+            errorMsg.style.display = "none"; // Hide error message
+        } else {
+            errorMsg.style.display = "block"; // Show error message
+        }
+    });
+
+    document.getElementById("mobileNumber").addEventListener("input", function () {
+        let mobileInput = this.value.trim();
+        let errorMsg = document.getElementById("mobileError");
+
+        // Ensure mobile number is exactly 10 digits
+        if (/^\d{10}$/.test(mobileInput)) {
+            errorMsg.style.display = "none"; // Hide error message
+        } else {
+            errorMsg.style.display = "block"; // Show error message
+        }
+    });
+
+    document.getElementById("current-password").addEventListener("input", function () {
+        let passwordInput = this.value.trim();
+        let errorMsg = document.getElementById("passwordError");
+
+        if (passwordInput.length >= 8 || passwordInput === "") {
+            errorMsg.style.display = "none"; // Hide error message
+            this.style.borderColor = ""; // Reset border color
+        } else {
+            errorMsg.style.display = "block"; // Show error message
+            this.style.borderColor = "red"; // Highlight input field
+        }
+    });
+
+    // Toggle password visibility
+    document.getElementById("toggle-password").addEventListener("click", function () {
+        let passwordField = document.getElementById("current-password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            this.classList.replace("ph-eye-slash", "ph-eye");
+        } else {
+            passwordField.type = "password";
+            this.classList.replace("ph-eye", "ph-eye-slash");
+        }
+    });
+</script>

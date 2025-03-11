@@ -1,0 +1,100 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+
+<section>
+    <div class="container">
+        <h5>My Assessment</h5> <br>
+        <div class="table-responsive" style="overflow: visible;">
+            <table class="table border table-bordered" id="table">
+                <thead class="table-dark">
+                    <tr class="align-middle">
+                        <th scope="col">Session Name</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each sessions}}
+                    <tr class="align-middle">
+                        <td>{{this.assessmentTitle}}</td>
+                        <td>{{this.createdAt}}</td>
+                        <td>
+                              <a href="/take-assesment/{{this._id}}"
+                                class="btn btn-success">Take Assessment</a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for viewing review -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Session Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="reviewContent">
+                <!-- Review content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function viewReview(review) {
+        document.getElementById('reviewContent').innerText = review;
+        var reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+        reviewModal.show();
+    }
+
+    Handlebars.registerHelper('formatDate', function (date) {
+        var options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(date).toLocaleDateString('en-US', options);
+    });
+
+    Handlebars.registerHelper('getStatus', function (date) {
+        var sessionDate = new Date(date);
+        var currentDate = new Date();
+        var isToday = sessionDate.toDateString() === currentDate.toDateString();
+        if (sessionDate < currentDate && !isToday) {
+            return 'Completed';
+        } else if (isToday) {
+            return 'Ongoing';
+        } else {
+            return 'Upcoming';
+        }
+    });
+
+    Handlebars.registerHelper('eq', function (a, b) {
+        return a === b;
+    });
+</script>

@@ -1,0 +1,210 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+<section>
+    <div class="container ">
+        <h5>All Bookings</h5> <br>
+        {{!-- <a href="/admin/cancel-all-orders" onclick="return confirm('Are You Sure to Cancel All Orders ?')"
+            class="btn btn-danger mb-2">Cancel All Orders</a> --}}
+
+        <div class="table-responsive" style="overflow: visible;">
+            <table class="table border table-bordered" id="table">
+                <thead class="table-dark">
+                    <tr class="align-middle">
+                        <th scope="col">Date</th>
+                        <th scope="col">Patient Details</th>
+                        <th scope="col">Selected Date</th>
+                         <th scope="col">Selected Time</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Payment</th>
+                        <th scope="col">Order Status</th>
+                        <th scope="col">Session Status</th>
+                        <th scope="col">Cancel</th>
+                        <th scope="col">View</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{#each orders}}
+                    <tr class="align-middle">
+                        <td>{{formatDate this.date}}</td>
+                        <td><b>{{this.user.Fname}} {{this.user.Lname}}</b> <br>
+                            {{this.user.Email}} <br>
+                            {{this.user.Phone}} <br>
+                            {{this.user.Address}} <br>
+                            {{this.user.Pincode}}
+                        </td>
+
+                        <td>{{formatDateDD this.deliveryDetails.selecteddate}}</td>
+                        <td>{{ formatTime this.deliveryDetails.time}}</td>
+
+                        <td>Rs.{{this.totalAmount}}/-</td>
+                        <td>{{this.paymentMethod}}</td>
+
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                                    data-bs-toggle="dropdown" aria-expanded="false" {{#if (eq (getStatus
+                                    formatDateDD this.deliveryDetails.selecteddate) 'Completed' )}}disabled{{/if}}>
+                                    {{this.status}}
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <li><a class="dropdown-item"
+                                            href="/psychiatrist/change-status/?status=Accepted&orderId={{this._id}}">Accepted</a>
+                                    </li>
+                                    <li><a class="dropdown-item"
+                                            href="/psychiatrist/change-status/?status=Rejected&orderId={{this._id}}">Rejected</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>{{getStatus formatDateDD this.deliveryDetails.selecteddate}} {{this.deliveryDetails.selecteddate}}</td>
+                        <td>
+                            {{#if (eq (getStatus formatDateDD this.deliveryDetails.selecteddate) 'Completed')}}
+                            <button class="btn btn-danger" disabled>Cancel</button>
+                            {{else}}
+                            <a href="/psychiatrist/cancel-order/{{this._id}}"
+                                onclick="return confirm('Are You Sure to Cancel This Order ?')"
+                                class="btn btn-danger">Cancel</a> <br>
+                                  <button class="btn btn-success" data-id="{{this._id}}" id="rescheduleBtn">Reschedule</button>
+                              
+                            {{/if}}
+                        </td>
+                        <td>
+                            <a href="/psychiatrist/view-ordered-products/{{this._id}}" class="btn btn-primary">View
+                                Session Details</a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+  <!-- Bootstrap Modal for rescheduling -->
+  <div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog" aria-labelledby="rescheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rescheduleModalLabel">Reschedule Order</h5>
+        </div>
+        <div class="modal-body">
+          <label for="newDate">Select new date:</label>
+          <input type="time" id="newDate" class="form-control">
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="rescheduleOk" class="btn btn-primary">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <script>
+    // Wait until the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      var rescheduleBtn = document.getElementById('rescheduleBtn');
+      var rescheduleModalEl = document.getElementById('rescheduleModal');
+      // Create a new Bootstrap modal instance
+      var rescheduleModal = new bootstrap.Modal(rescheduleModalEl);
+      var rescheduleOk = document.getElementById('rescheduleOk');
+      var newDateInput = document.getElementById('newDate');
+
+       var orderId;
+
+      // When the "Reschedule" button is clicked, get the data-id and show the modal
+      rescheduleBtn.addEventListener('click', function() {
+        orderId = this.dataset.id; // or: this.getAttribute('data-id');
+        console.log('Order ID:', orderId);  // For debugging purposes
+        rescheduleModal.show();
+      });
+
+      // Handle OK button click inside the modal
+      rescheduleOk.addEventListener('click', function() {
+        var newDate = newDateInput.value;
+
+        // Validate date input
+        if (!newDate) {
+          alert('Please select a date.');
+          return;
+        }
+
+        // Prepare the payload for the POST request
+        var payload = {
+          orderTime: newDate,
+          status: 'accepted'
+        };
+
+        // Send a POST request using the Fetch API
+        fetch('/psychiatrist/reschedule/'+orderId, { // Replace with your actual API endpoint
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+        .then(function(response) {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json(); // Adjust if you expect another response format
+        })
+        .then(function(data) {
+          alert('Reschedule success');
+          location.reload();  // Refresh the current page
+        })
+        .catch(function(error) {
+          alert('Error updating order');
+          console.error('Error:', error);
+        });
+
+        // Hide the modal after sending the request
+        rescheduleModal.hide();
+      });
+    });
+  </script>
+
+<script>
+    Handlebars.registerHelper('formatDate', function (date) {
+        var options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(date).toLocaleDateString('en-US', options);
+    });
+
+    Handlebars.registerHelper('getStatus', function (date) {
+        var sessionDate = new Date(date);
+        var currentDate = new Date();
+        var isToday = sessionDate.toDateString() === currentDate.toDateString();
+        if (sessionDate < currentDate && !isToday) {
+            return 'Completed';
+        } else if (isToday) {
+            return 'Ongoing';
+        } else {
+            return 'Upcoming';
+        }
+    });
+
+    Handlebars.registerHelper('eq', function (a, b) {
+        return a === b;
+    });
+</script>

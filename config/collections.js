@@ -1,0 +1,17 @@
+module.exports = {
+    PRODUCTS_COLLECTION: 'products',
+    USERS_COLLECTION: 'users',
+    ADMIN_COLLECTION: 'admin',
+    CART_COLLECTION: 'cart',
+    ORDER_COLLECTION: 'order',
+    PSYCHIATRIST_COLLECTION: "psychiatrist",
+    ASSESSMENT_COLLECTION:"assessments",
+    WORKSPACE_COLLECTION: "workspace",
+    FEEDBACK_COLLECTION: "feedback",
+    NOTIFICATIONS_COLLECTION: "notification",
+    OFFICERS_COLLECTION: "officers",
+    REGISTRATION: "registrations",
+    SESSION_COLLECTION: "sessions",
+    CHAT_COLLECTION: "chatroom",
+    CHAT_COLLECTION: "messages",
+}

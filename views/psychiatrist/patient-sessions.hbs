@@ -1,0 +1,29 @@
+<section>
+    <div class="container">
+        <h5>Patient Sessions</h5> <br>
+        <div class="table-responsive" style="overflow: visible;">
+            <table class="table border table-bordered" id="table">
+                <thead class="table-dark">
+                    <tr class="align-middle">
+                        <th scope="col">Patient Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each patients}}
+                    <tr class="align-middle">
+                        <td>{{this.Fname}} {{this.Lname}}</td>
+                        <td>{{this.Email}}</td>
+                        <td>{{this.Phone}}</td>
+                        <td>
+                            <a href="/psychiatrist/view-patient-sessions/{{this._id}}" class="btn btn-primary">View Sessions</a>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

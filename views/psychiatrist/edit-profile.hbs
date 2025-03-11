@@ -1,0 +1,123 @@
+<!-- Login Wrapper Area -->
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="  page-content-wrapper main-content">
+    <div class="container-lg">
+        <div class="text-center px-4"><img class="login-intro-img" src="assets/img/bg-img/36.png" alt=""></div>
+        <!-- Register Form -->
+
+        <div class="d-flex gap-5">
+            <a href="/psychiatrist" class="btn btn-sm btn-dark">
+                <i class="bi bi-arrow-left-short "></i> Back</a>
+            <h5>Update your profile</h5>
+
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card shadow w-100 mb-5 p-4 mt-3">
+
+                    <div class="register-form mt-4">
+                        <h4 class="mb-5 text-left">My Profile</h4>
+                        {{#if psychiatrist}}
+                        <form action="/psychiatrist/edit-profile/{{psychiatristProfile._id}}" method="POST"
+                            enctype="multipart/form-data">
+
+                            <img src="/images/psychiatrist-images/{{psychiatrist._id}}.png" width="10%"
+                                style="border-radius: 100px;" class="mb-4">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="Name" value="{{psychiatristProfile.Name}}"
+                                    pattern="[A-Za-z\s]+" title="Only letters are allowed" required>
+                                {{#if errors.name}}
+                                <small class="text-danger">{{errors.name}}</small>
+                                {{/if}}
+                            </div>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="email" name="Email" value="{{psychiatristProfile.Email}}"
+                            required>
+                        {{#if errors.email}}
+                        <small class="text-danger">{{errors.email}}</small>
+                        {{/if}}
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="Phone" value="{{psychiatristProfile.Phone}}"
+                            required>
+                        {{#if errors.phone}}
+                        <small class="text-danger">{{errors.phone}}</small>
+                        {{/if}}
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" id="Address" name="Address"
+                            required>{{psychiatristProfile.Address}}</textarea>
+                        {{#if errors.address}}
+                        <small class="text-danger">{{errors.address}}</small>
+                        {{/if}}
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-lg-7">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="District"
+                                    value="{{psychiatristProfile.District}}" pattern="[A-Za-z]+"
+                                    title="Only letters are allowed" required>
+                                {{#if errors.district}}
+                                <small class="text-danger">{{errors.district}}</small>
+                                {{/if}}
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <input class="form-control" type="number" name="Pincode"
+                                    value="{{psychiatristProfile.Pincode}}" required>
+                                {{#if errors.pincode}}
+                                <small class="text-danger">{{errors.pincode}}</small>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn mt-4 btn-primary">Update Profile</button>
+                    <a href="/psychiatrist/profile" class="btn mt-4 btn-secondary">Cancel</a>
+
+                    {{/if}}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow w-100 mb-5 p-4 mt-3">
+
+                    <div class="register-form mt-4">
+                        <h4 class="mb-5 text-left">Other Details</h4>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="mb-2" for="">Qualication</label>
+                        <input class="form-control" type="text" name="Qualication" value={{psychiatrist.Qualication}}>
+                        {{#if errors.qualication}}
+                        <small class="text-danger">{{errors.qualication}}</small>
+                        {{/if}}
+                    </div>
+                    <div class="form-group">
+                        <label class="mb-2" for="">Experience</label>
+                        <input class="form-control" type="text" name="Experience" value={{psychiatrist.Experience}}>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="mb-2" for="">Specialisation</label>
+                        <input class="form-control" type="text" name="Specialisation"
+                            value={{psychiatrist.Specialisation}}>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        </form>
+
+
+    </div>
+
+</div>
+</div>

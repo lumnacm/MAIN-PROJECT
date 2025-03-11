@@ -1,0 +1,156 @@
+<div class="container mt-20 mb-30">
+    <div class="card">
+        <div class="card-header border-bottom border-gray-100 flex-align gap-8">
+            <h5 class="mb-0">Socity Registration</h5>
+
+        </div>
+        <div class="card-body">
+            <form action="/registration" method="POST">
+                <input type="hidden" name="date" id="datetime">
+                <input type="hidden" name="userId" value="{{user._id}}">
+                <input type="hidden" name="status" value="submitted">
+
+                <div class="row mb-14">
+                    <div class="col-6 mb-15 ">
+                        <label class="form-label mb-8 h6">Type of Socity</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="text" name="Stype" placeholder="Enter Socity Type ">
+                        </div>
+                    </div>
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Category of Socity</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="text" name="Scategory"
+                                placeholder="Enter Socity Category ">
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 mb-15">
+                        <label class="form-label mb-8 h6">Category Description</label>
+                        <div class="position-relative">
+                            <textarea class="form-control py-11" type="text" name="Catdesc"
+                                placeholder="Enter Description "></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mb-15">
+                        <label class="form-label mb-8 h6">Name of Socity</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="text" name="Sname" placeholder="Enter Socity Name ">
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 mb-15">
+                        <label class="form-label mb-8 h6">Portal Address</label>
+                        <div class="position-relative">
+                            <textarea class="form-control py-11" type="text" name="Paddress"
+                                placeholder="Enter Description "></textarea>
+                        </div>
+                    </div>
+
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Post Office</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="text" name="Postoffice"
+                                placeholder="Enter Post Office ">
+                        </div>
+                    </div>
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Pin Code</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="number" name="Pincode"
+                                placeholder="Enter Pin Code ">
+                        </div>
+                    </div>
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Land Phone</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="number" name="Lphone"
+                                placeholder="Enter Land Phone Number ">
+                        </div>
+                    </div>
+
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Area of Operation (More than one district)</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="text" name="Phone"
+                                placeholder="Enter Area of Operation ">
+                        </div>
+                    </div>
+
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Name of Cheif Promotor</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="text" name="Cheifpromotor"
+                                placeholder="Enter Name of Cheif Promotor ">
+                        </div>
+                    </div>
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Mobile Number</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="number" name="Mobile"
+                                placeholder="Enter Mobile Number ">
+                        </div>
+                    </div>
+
+                    <div class="col-6 mb-15">
+                        <label class="form-label mb-8 h6">Email</label>
+                        <div class="position-relative">
+                            <input class="form-control py-11" type="email" name="Email" placeholder="Enter Email ">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="courseCategory" class="h5 mb-8 fw-semibold font-heading">Are Applicants from
+                            different
+                            families?
+                        </label>
+                        <div class="position-relative">
+                            <select id="courseCategory" name="Applicants"
+                                class="form-select py-9 placeholder-13 text-15">
+                                <option disabled="" selected="">Select</option>
+                                <option value="Yes">Yes </option>
+                                <option value="No">No </option>
+
+                            </select>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="flex-align justify-content-end gap-8">
+                    <a href="/" class="btn btn-outline-main rounded-pill py-9">Cancel</a>
+                    <button type="submit" class="btn btn-main rounded-pill py-9">Continue</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    // Get current date and time
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = ((now.getHours() + 11) % 12 + 1).toString().padStart(2, '0'); // Convert to 12-hour format
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+
+    // Set default value to current date and time in 12-hour format with AM/PM
+    const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('datetime').value = defaultDateTime;
+</script>

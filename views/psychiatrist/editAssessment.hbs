@@ -1,0 +1,155 @@
+
+  <style>
+    .question-block {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .option-block {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .option-block input[type="text"] {
+      margin-left: 10px;
+      flex: 1;
+    }
+  </style>
+
+  <div class="container mt-5">
+    <h1>Edit Assessment</h1>
+    <!-- Form action should point to your update route, e.g., /assessment/edit/:id -->
+    <form id="editAssessmentForm" action="/assessment/edit/{{assessment._id}}" method="POST">
+      <div class="mb-3">
+        <label for="assessmentTitle" class="form-label">Assessment Title</label>
+        <input type="text" class="form-control" id="assessmentTitle" name="assessmentTitle" value="{{assessment.assessmentTitle}}" required>
+      </div>
+      
+      <!-- Questions Container -->
+      <div id="questionsContainer">
+        {{#each assessment.questions as |question qIndex|}}
+          <div class="question-block" data-index="{{qIndex}}" data-option-index="{{question.options.length}}">
+            <h5>Question {{addOne qIndex}}:</h5>
+            <input type="text" name="questions[{{qIndex}}][questionText]" class="form-control mb-3" value="{{question.questionText}}" required>
+            <div class="options-container">
+              {{#each question.options as |option oIndex|}}
+                <div class="option-block">
+                  <input type="radio"
+                         class="form-check-input"
+                         name="questions[{{qIndex}}][correctAnswer]"
+                         id="q{{qIndex}}_option{{oIndex}}"
+                         value="{{oIndex}}"
+                         {{#ifCond oIndex '==' question.correctAnswer}}checked{{/ifCond}}
+                         required>
+                  <input type="text" name="questions[{{qIndex}}][options][]" class="form-control" value="{{option}}" placeholder="Option text" required>
+                </div>
+              {{/each}}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary add-option-btn">Add Option</button>
+          </div>
+        {{/each}}
+      </div>
+      
+      <button type="button" id="addQuestionBtn" class="btn btn-secondary mb-3">Add Question</button>
+      <button type="submit" class="btn btn-primary">Save Assessment</button>
+    </form>
+  </div>
+
+  <script>
+    // Helper function to create new elements with attributes
+    function createElement(type, attrs, innerHTML) {
+      const el = document.createElement(type);
+      for (let key in attrs) {
+        if (attrs.hasOwnProperty(key)) {
+          el.setAttribute(key, attrs[key]);
+        }
+      }
+      if (innerHTML) el.innerHTML = innerHTML;
+      return el;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const questionsContainer = document.getElementById('questionsContainer');
+      const addQuestionBtn = document.getElementById('addQuestionBtn');
+
+      // Function to add a new question block dynamically
+      function addQuestion() {
+        const qIndex = questionsContainer.children.length;
+        const questionBlock = createElement('div', { class: 'question-block', 'data-index': qIndex, 'data-option-index': 0 });
+        
+        // Question header
+        const header = createElement('h5', {}, 'Question ' + (qIndex + 1) + ':');
+        questionBlock.appendChild(header);
+
+        // Input for question text
+        const questionInput = createElement('input', {
+          type: 'text',
+          name: `questions[${qIndex}][questionText]`,
+          class: 'form-control mb-3',
+          placeholder: 'Enter question text',
+          required: true
+        });
+        questionBlock.appendChild(questionInput);
+
+        // Container for answer options
+        const optionsContainer = createElement('div', { class: 'options-container' });
+        questionBlock.appendChild(optionsContainer);
+
+        // Add one default option
+        addOption(questionBlock);
+
+        // Button to add new option for this question
+        const addOptionBtn = createElement('button', { type: 'button', class: 'btn btn-sm btn-outline-secondary add-option-btn' }, 'Add Option');
+        addOptionBtn.addEventListener('click', function() {
+          addOption(questionBlock);
+        });
+        questionBlock.appendChild(addOptionBtn);
+
+        questionsContainer.appendChild(questionBlock);
+      }
+
+      // Function to add a new option to a given question block
+      function addOption(questionBlock) {
+        const qIndex = questionBlock.getAttribute('data-index');
+        let optionIndex = parseInt(questionBlock.getAttribute('data-option-index'), 10);
+        const optionsContainer = questionBlock.querySelector('.options-container');
+
+        // Create a container for the option
+        const optionBlock = createElement('div', { class: 'option-block' });
+
+        // Radio button for selecting the correct answer
+        const radioInput = createElement('input', {
+          type: 'radio',
+          class: 'form-check-input',
+          name: `questions[${qIndex}][correctAnswer]`,
+          id: `q${qIndex}_option${optionIndex}`,
+          value: optionIndex,
+          required: true
+        });
+        optionBlock.appendChild(radioInput);
+
+        // Text input for the option text
+        const optionInput = createElement('input', {
+          type: 'text',
+          name: `questions[${qIndex}][options][]`,
+          class: 'form-control',
+          placeholder: 'Option text',
+          required: true
+        });
+        optionBlock.appendChild(optionInput);
+
+        optionsContainer.appendChild(optionBlock);
+        questionBlock.setAttribute('data-option-index', optionIndex + 1);
+      }
+
+      addQuestionBtn.addEventListener('click', addQuestion);
+
+      // Attach event listeners to any existing "Add Option" buttons (for pre-populated questions)
+      document.querySelectorAll('.add-option-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+          const questionBlock = button.parentElement;
+          addOption(questionBlock);
+        });
+      });
+    });
+  </script>

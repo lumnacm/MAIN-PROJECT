@@ -1,0 +1,207 @@
+<style>
+    .login-container {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-content {
+        background: #fff;
+        border-radius: 8px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .left-image {
+        background: url('/assets2/img/hero-bg.jpg') no-repeat center center;
+        background-size: cover;
+        height: 100%;
+    }
+
+    .signin-btn {
+        background-color: black;
+        color: white;
+        border: none;
+    }
+
+    .signin-btn:hover {
+        background-color: #333;
+    }
+
+    .signup-link {
+        text-decoration: none;
+        color: black;
+    }
+
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+
+<div class="container-fluid">
+    <div class="row login-container ">
+        <div class="col-md-6">
+
+            <div class="login-content ">
+                <br><br><br>
+                <h3 class="mb-1">Create New Account </h3>
+                <p class="mb-4">Login to continue with this app</p>
+                {{#if signInErr}}
+                <p class="text-danger text-center ">{{signInErr}}</p>
+                {{/if}}
+                <form action="/psychiatrist/signup" method="POST" enctype="multipart/form-data" autocomplete="off">
+                    <input type="hidden" name="date" id="datetime">
+
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="Name" value="{{Name}}" placeholder="Your Name"
+                            pattern="[A-Za-z\s]+" title="Only letters are allowed">
+                        {{#if errors.Name}}<div class="text-danger">{{errors.Name}}</div>{{/if}}
+                    </div>
+
+                    <div class="form-group">
+                        <input class="form-control" type="email" name="Email" value="{{Email}}"
+                            placeholder="Your Email">
+                        {{#if errors.email}}<div class="text-danger">{{errors.email}}</div>{{/if}}
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="number" name="Phone" value="{{Phone}}"
+                            placeholder="Your Phone Number">
+                        {{#if errors.phone}}<div class="text-danger">{{errors.phone}}</div>{{/if}}
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" name="Address" placeholder="Your Address">{{Address}}</textarea>
+                        {{#if errors.address}}<div class="text-danger">{{errors.address}}</div>{{/if}}
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-lg-7">
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="District" value="{{District}}"
+                                    placeholder="Your District Name" pattern="[A-Za-z]+"
+                                    title="Only letters are allowed">
+                                {{#if errors.district}}<div class="text-danger">{{errors.district}}</div>{{/if}}
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-group">
+                                <input class="form-control" type="number" name="Pincode" value="{{Pincode}}"
+                                    placeholder="Your Pincode">
+                                {{#if errors.pincode}}<div class="text-danger">{{errors.pincode}}</div>{{/if}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group position-relative">
+                        <input class="form-control" id="psw-input" name="Password" value="{{Password}}" type="password"
+                            placeholder="Enter Password">
+                        {{#if errors.password}}<div class="text-danger">{{errors.password}}</div>{{/if}}
+
+                    </div>
+
+                    <hr>
+                    <h5>Other Details</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="Qualication" value="{{Qualication}}"
+                            placeholder="Your Qualication">
+                        {{#if errors.qualication}}<div class="text-danger">{{errors.qualication}}</div>{{/if}}
+                    </div>
+
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="Experience" value="{{Experience}}"
+                            placeholder="Your Experience">
+                        {{#if errors.experience}}<div class="text-danger">{{errors.experience}}</div>{{/if}}
+                    </div>
+
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="Specialisation" value="{{Specialisation}}"
+                            placeholder="Your Specialisation">
+                        {{#if errors.specialisation}}<div class="text-danger">{{errors.specialisation}}</div>{{/if}}
+                    </div>
+
+                    <div class="form-group ">
+                        <label class="mb-2">Your Photo</label>
+                        <input class="form-control" name="Image" accept="image/*" value="{{Image}}" type="file">
+                        {{#if errors.Image}}<div class="text-danger">{{errors.Image}}</div>{{/if}}
+                    </div>
+            </div>
+            <button class="btn btn-dark w-100" type="submit">Signup</button>
+            </form>
+            <center>
+                <p class="mt-3">
+                    Already have an account?
+                    <a href="/psychiatrist/signin" class="signup-link">Signin Now</a>
+                </p>
+            </center>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        function searchPin() {
+            let pin = document.getElementById("text").value;
+            $.getJSON("https://api.postalpincode.in/pincode/" + pin, function (data) {
+                createHTML(data);
+            });
+
+            function createHTML(data) {
+                var htmlElements = " ";
+                var msg = "";
+
+                // Check if PostOffice array exists and has items
+                if (data[0].PostOffice && data[0].PostOffice.length) {
+                    // Limit to the first item in the PostOffice array
+                    var postOffice = data[0].PostOffice[0];
+
+                    // Set District and State input fields
+                    document.getElementById("district").value = postOffice.District || ''; // Update District field
+                    document.getElementById("state").value = postOffice.State || ''; // Update State field
+
+                    // Create HTML for the first PostOffice item
+                    htmlElements += '<div class="col-sm-4"><div class="card"><div class="list-group"><h4>' + postOffice.District + '</h4><p>PostOffice :<span class="pull-right">' + postOffice.State + '</span></p></div></div></div>';
+                } else {
+                    alert('Enter Valid pincode');
+                }
+
+                // Update the HTML content
+                var htmlView = document.getElementById("mkslider");
+                htmlView.innerHTML = htmlElements;
+                var msgView = document.getElementById("total-msg");
+                msgView.innerHTML = msg;
+            }
+
+            setTimeout(function () {
+                $('#close').trigger('click');
+            }, 3000);
+        }
+
+        $(document).on("click", '#close', function () {
+            $('#total-msg').remove();
+        });
+
+        document.getElementById("submit").addEventListener("click", searchPin);
+    });
+
+</script>
+
+<script>
+    // Get current date and time
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = ((now.getHours() + 11) % 12 + 1).toString().padStart(2, '0'); // Convert to 12-hour format
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+
+    // Set default value to current date and time in 12-hour format with AM/PM
+    const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('datetime').value = defaultDateTime;
+</script>

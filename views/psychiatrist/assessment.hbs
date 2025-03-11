@@ -1,0 +1,162 @@
+ <div class="container mt-5">
+    <h1>Assessment Designer</h1>
+    <form id="assessmentForm">
+      <div class="mb-3">
+        <label for="assessmentTitle" class="form-label">Assessment Title</label>
+        <input type="text" class="form-control" id="assessmentTitle" name="assessmentTitle" required>
+      </div>
+      <!-- Container where questions will be added dynamically -->
+      <div id="questionsContainer"></div>
+      <button type="button" id="addQuestionBtn" class="btn btn-secondary mb-3">Add Question</button>
+      <br>
+      <button type="submit" class="btn btn-primary">Submit Assessment</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let questionIndex = 0;
+      const questionsContainer = document.getElementById('questionsContainer');
+      const addQuestionBtn = document.getElementById('addQuestionBtn');
+
+      // Function to add a new question block
+      function addQuestion() {
+        const questionBlock = document.createElement('div');
+        questionBlock.className = 'question-block';
+        questionBlock.setAttribute('data-index', questionIndex);
+        questionBlock.setAttribute('data-option-index', 0); // to track the number of options for this question
+
+        // Create a header for the question
+        const header = document.createElement('h5');
+        header.textContent = 'Question ' + (questionIndex + 1);
+        questionBlock.appendChild(header);
+
+        // Input for question text
+        const questionInput = document.createElement('input');
+        questionInput.type = 'text';
+        questionInput.name = `questions[${questionIndex}][questionText]`;
+        questionInput.className = 'form-control mb-3';
+        questionInput.placeholder = 'Enter question text';
+        questionInput.required = true;
+        questionBlock.appendChild(questionInput);
+
+        // Container for answer options
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'options-container';
+        questionBlock.appendChild(optionsContainer);
+
+        // Button to add an option for this question
+        const addOptionBtn = document.createElement('button');
+        addOptionBtn.type = 'button';
+        addOptionBtn.className = 'btn btn-sm btn-outline-secondary mb-3';
+        addOptionBtn.textContent = 'Add Option';
+        addOptionBtn.addEventListener('click', function() {
+          addOption(questionBlock);
+        });
+        questionBlock.appendChild(addOptionBtn);
+
+        // Append this question block to the questions container
+        questionsContainer.appendChild(questionBlock);
+        questionIndex++;
+      }
+
+      // Function to add a new answer option within a question block
+      function addOption(questionBlock) {
+        let currentOptionIndex = parseInt(questionBlock.getAttribute('data-option-index'));
+        const questionIdx = questionBlock.getAttribute('data-index');
+
+        // Create a container for the option
+        const optionBlock = document.createElement('div');
+        optionBlock.className = 'option-block';
+
+        // Radio button to select this option as the correct answer
+       /* const radioInput = document.createElement('input');
+        radioInput.type = 'radio';
+         radioInput.class = 'form-control mb-1';
+        radioInput.name = `questions[${questionIdx}][correctAnswer]`;
+        radioInput.value = currentOptionIndex;
+        optionBlock.appendChild(radioInput);*/
+
+        // Text input for the answer option text
+        const optionInput = document.createElement('input');
+        optionInput.type = 'text';
+        optionInput.className = 'form-control mb-1';
+        optionInput.name = `questions[${questionIdx}][options][]`;
+        optionInput.placeholder = 'Option text';
+        optionInput.required = true;
+        optionBlock.appendChild(optionInput);
+
+        // Append the option block to the question's options container
+        questionBlock.querySelector('.options-container').appendChild(optionBlock);
+
+        // Increment and update the option index for this question
+        questionBlock.setAttribute('data-option-index', currentOptionIndex + 1);
+      }
+
+      // Initially add one question so the form isn’t empty
+      addQuestion();
+
+      // Add a new question when the "Add Question" button is clicked
+      addQuestionBtn.addEventListener('click', addQuestion);
+
+      // Handle form submission
+      const assessmentForm = document.getElementById('assessmentForm');
+      assessmentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get assessment title
+        const assessmentTitle = document.getElementById('assessmentTitle').value;
+        
+        // Gather all questions from the dynamic question blocks
+        const questionBlocks = document.querySelectorAll('.question-block');
+        const questions = [];
+        
+        questionBlocks.forEach(block => {
+          // Get the question text
+          const questionText = block.querySelector('input[name^="questions"]').value;
+          // Get all option text inputs
+          const optionInputs = block.querySelectorAll('.option-block input[type="text"]');
+          const options = [];
+          optionInputs.forEach(opt => {
+            options.push(opt.value);
+          });
+          // Determine the selected correct answer (if any)
+         // const correctRadio = block.querySelector('.option-block input[type="radio"]:checked');
+         // let correctAnswer = null;
+         // if (correctRadio) {
+          //  correctAnswer = parseInt(correctRadio.value, 10);
+         // }
+          questions.push({
+            questionText: questionText,
+            options: options
+          });
+        });
+
+        // Build the final payload
+        const payload = {
+          assessmentTitle: assessmentTitle,
+          questions: questions,
+          orderId:'{{orderId}}'
+        };
+
+        // Send the POST request with the payload as JSON
+        fetch('/psychiatrist/assessment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(result => {
+          alert(result.message);
+          // Optionally clear or refresh the form
+          window.location.reload();
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          alert('Error submitting assessment');
+        });
+      });
+    });
+  </script>

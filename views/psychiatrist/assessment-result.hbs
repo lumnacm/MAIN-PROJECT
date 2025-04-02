@@ -40,6 +40,7 @@
                     <tr class="align-middle">
                         <th scope="col">Title</th>
                         <th scope="col">Date</th>
+                        <th scope="col">User</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -47,9 +48,11 @@
                     {{#each ans}}
                     <tr class="align-middle">
                         <td>{{this.assessmentTitle}}</td>
-                        <td>{{this.createdAt}}</td>
+                        <td>{{ formatDate this.createdAt}}</td>
+                        <td>{{ this.userDetails.Fname}} {{this.userDetails.Lname}} </td>
+
                         <td>
-                            <a href="/psychiatrist/view-assesment-result/{{this._id}}" class="btn btn-primary">View Sessions</a>
+                            <a href="/psychiatrist/view-assesment-result/{{this._id}}" class="btn btn-primary">View</a>
                         </td>
                     </tr>
                     {{/each}}

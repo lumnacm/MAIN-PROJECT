@@ -1,0 +1,157 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+
+<section>
+    <div class="container">
+        <a href="/psychiatrist/patient-sessions" class="btn btn-dark btn-sm mb-2">Back</a>
+
+        <!-- User Details Section -->
+        <div class="user-details mb-4">
+            <h6>User Details</h6>
+            <p><strong>Name:</strong> {{user.Fname}} {{user.Lname}}</p>
+            <p><strong>Email:</strong> {{user.Email}}</p>
+            <p><strong>Phone:</strong> {{user.Phone}}</p>
+            <p><strong>Address:</strong> {{user.Address}}, {{user.Pincode}}</p>
+        </div>
+
+        <div class="">
+             {{#each orders}}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{formatDateDD this.createdAt}}</h5>
+            <p class="card-text">{{this.content}}</p>
+        </div>
+    </div>
+    {{/each}}
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Modal for adding/updating review -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Add/Update Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <div class="mb-3">
+                        <label for="reviewText" class="form-label">Review</label>
+                        <textarea class="form-control" id="reviewText" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function createMeetAndShare(phoneNumber, userName) {
+        if (!phoneNumber) {
+            alert(`Phone number for ${userName} is missing!`);
+            return;
+        }
+
+        // Ensure phone number is in international format (remove spaces, dashes, etc.)
+        phoneNumber = phoneNumber.replace(/\D/g, "");
+
+        // Step 1: Generate a new Google Meet Link
+        let meetLink = "https://meet.google.com/pbt-sqru-xpz";
+
+        // Step 2: Create WhatsApp message with the Meet link
+        let message = encodeURIComponent(`Hello ${userName}, here is your Google Meet link: ${meetLink}. Please join now for your session`);
+        let whatsappLink = `https://wa.me/${phoneNumber}?text=${message}`;
+
+        // Step 3: Open WhatsApp in a new tab
+        let whatsappTab = window.open(whatsappLink, "_blank");
+
+        // Step 4: Open Google Meet in another new tab
+        let meetTab = window.open(meetLink, "_blank");
+
+        // Step 5: Alert user about opened tabs (optional)
+        if (!whatsappTab || !meetTab) {
+            alert("Please allow pop-ups to open WhatsApp and Google Meet.");
+        }
+    }
+
+    function openReviewModal(orderId, review) {
+        document.getElementById('reviewText').value = review || '';
+        document.getElementById('reviewForm').onsubmit = function(event) {
+            event.preventDefault();
+            submitReview(orderId);
+        };
+        var reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+        reviewModal.show();
+    }
+
+    function submitReview(orderId) {
+        var reviewText = document.getElementById('reviewText').value;
+        fetch(`/psychiatrist/add-review/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ review: reviewText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Review submitted successfully');
+                location.reload();
+            } else {
+                alert('Failed to submit review');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to submit review');
+        });
+    }
+
+    Handlebars.registerHelper('getStatus', function(date) {
+        var sessionDate = new Date(date);
+        var currentDate = new Date();
+
+        // Compare only the date part (year, month, day)
+        var sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+        var currentDateOnly = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+        if (sessionDateOnly < currentDateOnly) {
+            return 'Completed';
+        } else if (sessionDateOnly.getTime() === currentDateOnly.getTime()) {
+            return 'Ongoing';
+        } else {
+            return 'Upcoming';
+        }
+    });
+
+    Handlebars.registerHelper('eq', function(a, b) {
+        return a === b;
+    });
+</script>

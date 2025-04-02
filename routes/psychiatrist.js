@@ -31,7 +31,8 @@ router.get("/home-2", verifySignedIn, function (req, res, next) {
 });
 
 
-///////ALL notification/////////////////////                                         
+///////ALL notification/////////////////////   
+                                  
 router.get("/all-notifications", verifySignedIn, async function (req, res) {
   let psychiatrist = req.session.psychiatrist;
 
@@ -45,9 +46,11 @@ router.get("/all-notifications", verifySignedIn, async function (req, res) {
 });
 
 ///////ADD notification/////////////////////                                         
-router.get("/add-notification", verifySignedIn, function (req, res) {
+router.get("/add-notification", verifySignedIn, async function (req, res) {
   let psychiatrist = req.session.psychiatrist;
-  res.render("psychiatrist/all-notifications", { psychiatrist: true, layout: "layout", psychiatrist });
+  let psychiatristId = psychiatrist._id;
+  let users = await psychiatristHelper.getAllUsersFromOrders(psychiatristId);
+  res.render("psychiatrist/add-notification", { psychiatrist: true, layout: "layout", psychiatrist ,users});
 });
 
 ///////ADD notification/////////////////////                                         
@@ -131,7 +134,7 @@ router.get("/profile", async function (req, res, next) {
 // });
 
 
-router.get("/psychiatrist-feedback", async function (req, res) {
+router.get("/view-feedback", async function (req, res) {
   let psychiatrist = req.session.psychiatrist; // Get the psychiatrist from session
 
   if (!psychiatrist) {
@@ -140,21 +143,22 @@ router.get("/psychiatrist-feedback", async function (req, res) {
 
   try {
     // Fetch feedback for this psychiatrist
-    const feedbacks = await psychiatristHelper.getFeedbackByPsychiatristId(psychiatrist._id);
+    const feedbacks = await psychiatristHelper.getAllFeedbacks(psychiatrist._id);
+    console.log(feedbacks,"kkkfff")
 
     // Fetch workspace details for each feedback
-    const feedbacksWithWorkspaces = await Promise.all(feedbacks.map(async feedback => {
-      const workspace = await userHelper.getWorkspaceById(ObjectId(feedback.workspaceId)); // Convert workspaceId to ObjectId
-      if (workspace) {
-        feedback.workspaceName = workspace.name; // Attach workspace name to feedback
-      }
-      return feedback;
-    }));
+    // const feedbacksWithWorkspaces = await Promise.all(feedbacks.map(async feedback => {
+    //   const workspace = await userHelper.getWorkspaceById(ObjectId(feedback.workspaceId)); // Convert workspaceId to ObjectId
+    //   if (workspace) {
+    //     feedback.workspaceName = workspace.name; // Attach workspace name to feedback
+    //   }
+    //   return feedback;
+    // }));
 
     // Render the feedback page with psychiatrist, feedbacks, and workspace data
-    res.render("psychiatrist/all-feedbacks", {
+    res.render("psychiatrist/view-feedback", {
       psychiatrist,  // Psychiatrist details
-      feedbacks: feedbacksWithWorkspaces // Feedback with workspace details
+      feedbacks // Feedback with workspace details
     });
   } catch (error) {
     console.error("Error fetching feedback and workspaces:", error);
@@ -211,8 +215,9 @@ router.get("/assessment-result", verifySignedIn,async function (req, res) {
 router.get('/view-assesment-result/:id',async (req, res) => {
   let psychiatrist = req.session.psychiatrist;
   let orderId=req.params.id;
-  const assessment = await psychiatristHelper.getAssessments(orderId);
-  res.render("psychiatrist/assessment-show", {
+  const assessment = await psychiatristHelper.getResult(orderId);
+  console.log(assessment,"^^^^^^")
+  res.render("psychiatrist/view-assesment-result", {
     psychiatrist: true,
     layout: "layout",
     psychiatrist,
@@ -229,6 +234,56 @@ router.get("/all-sessions", verifySignedIn, function (req, res) {
     res.render("psychiatrist/all-sessions", { psychiatrist: true, layout: "layout", sessions, psychiatrist });
   });
 });
+router.get("/group-session", verifySignedIn, function (req, res) {
+  let psychiatrist = req.session.psychiatrist;
+  psychiatristHelper.getAllGroupsessions(req.session.psychiatrist._id).then((sessions) => {
+    res.render("psychiatrist/group-sessions", { psychiatrist: true, layout: "layout", sessions, psychiatrist });
+  });
+});
+
+router.get("/add-group-session", verifySignedIn, function (req, res) {
+  let psychiatrist = req.session.psychiatrist;
+  psychiatristHelper.getAllUsers().then(async (users) => {
+   let sessions= await db.get().collection(collections.GROUPSESSION_COLLECTION).find().toArray();
+    res.render("psychiatrist/add-group-session", { psychiatrist: true, layout: "layout", users,sessions, psychiatrist });
+  });
+});
+
+router.post("/add-group-session", async (req, res) => {
+  try {
+      let { sessionName, description, participants } = req.body;
+
+      console.log("///DAAAAA", sessionName, description, participants);
+
+      if (!sessionName || !description || !participants) {
+          return res.status(400).json({ status: false, message: "Missing session details." });
+      }
+
+      // Ensure participants is an array
+      if (!Array.isArray(participants)) {
+          return res.status(400).json({ status: false, message: "Participants must be an array." });
+      }
+
+      let sessionData = {
+          sessionName,
+          description,
+          participants,
+          createdAt: new Date()
+      };
+
+      // Insert session into the database
+      await db.get().collection(collections.GROUPSESSION_COLLECTION).insertOne(sessionData);
+
+      res.json({ status: true });
+  } catch (err) {
+      console.error("Error creating group session:", err);
+      res.status(500).json({ status: false, message: "Internal Server Error" });
+  }
+});
+
+
+
+
 
 ///////ADD session/////////////////////                                         
 router.get("/add-session", verifySignedIn, function (req, res) {
@@ -265,6 +320,13 @@ router.post("/add-session", function (req, res) {
   }
 });
 
+router.get("/delete-session/:id", verifySignedIn, function (req, res) {
+  let Id = req.params.id;
+  psychiatristHelper.deleteSession(Id).then((response) => {
+   // fs.unlinkSync("./public/images/session-images/" + Id + ".png");
+    res.redirect("/psychiatrist/all-sessions");
+  });
+});
 
 ///////EDIT workspace/////////////////////                                         
 router.get("/edit-workspace/:id", verifySignedIn, async function (req, res) {
@@ -361,6 +423,91 @@ router.get("/signup", function (req, res) {
     });
   }
 });
+
+router.post("/change-profile-img", async function (req, res) {
+
+
+  // Check if email or company name already exists
+  const existingEmail = await db.get()
+    .collection(collections.PSYCHIATRIST_COLLECTION)
+    .findOne({ Email });
+  if (existingEmail) errors.email = "This email is already registered.";
+
+  if (!Email || !/^\S+@\S+\.\S+$/.test(Email)) {
+    errors.email = 'Please enter a valid email address.';
+  }
+
+  // Validate Pincode and Phone
+  if (!/^\d{6}$/.test(Pincode)) errors.pincode = "Pincode must be exactly 6 digits.";
+  if (!/^\d{10}$/.test(Phone)) errors.phone = "Phone number must be exactly 10 digits.";
+  const existingPhone = await db.get()
+    .collection(collections.PSYCHIATRIST_COLLECTION)
+    .findOne({ Phone });
+  if (existingPhone) errors.phone = "This phone number is already registered.";
+
+  // If there are validation errors, re-render the form
+  if (Object.keys(errors).length > 0) {
+    return res.render("psychiatrist/signup", {
+      psychiatrist: true,
+      layout: 'empty',
+      errors,
+      Name,
+      Email,
+      Phone,
+      Address,
+      District,
+      Pincode,
+      Password,
+      Qualication,
+      Experience,
+      Specialisation
+    });
+  }
+
+  psychiatristHelper.dosignup(req.body).then((response) => {
+    if (!response) {
+      req.session.signUpErr = "Invalid Admin Code";
+      return res.redirect("/psychiatrist/signup");
+    }
+
+    // Extract the id properly, assuming it's part of an object (like MongoDB ObjectId)
+    const id = response._id ? response._id.toString() : response.toString();
+
+    // Ensure the images directory exists
+    const imageDir = "./public/images/psychiatrist-images/";
+    if (!fs.existsSync(imageDir)) {
+      fs.mkdirSync(imageDir, { recursive: true });
+    }
+
+    // Handle image upload
+    if (req.files && req.files.Image) {
+      let image = req.files.Image;
+      let imagePath = imageDir + id + ".png";  // Use the extracted id here
+
+      console.log("Saving image to:", imagePath);  // Log the correct image path
+
+      image.mv(imagePath, (err) => {
+        if (!err) {
+          // On successful image upload, redirect to pending approval
+          req.session.signedInPsychiatrist = true;
+          req.session.psychiatrist = response;
+          res.redirect("/psychiatrist/pending-approval");
+        } else {
+          console.log("Error saving image:", err);  // Log any errors
+          res.status(500).send("Error uploading image");
+        }
+      });
+    } else {
+      // No image uploaded, proceed without it
+      req.session.signedInPsychiatrist = true;
+      req.session.psychiatrist = response;
+      res.redirect("/psychiatrist/pending-approval");
+    }
+  }).catch((err) => {
+    console.log("Error during signup:", err);
+    res.status(500).send("Error during signup");
+  });
+}),
 
 router.post("/signup", async function (req, res) {
   const { Name, Email, Phone, Address, District, Pincode, Password, Qualication, Experience, Specialisation } = req.body;
@@ -607,10 +754,21 @@ router.post("/edit-profile/:id", verifySignedIn, async function (req, res) {
 
     // Update the psychiatrist profile
     await psychiatristHelper.updatePsychiatristProfile(req.params.id, req.body);
+    
+      
+
+   
 
     // Fetch the updated psychiatrist profile and update the session
     let updatedPsychiatristProfile = await psychiatristHelper.getPsychiatristDetails(req.params.id);
     req.session.psychiatrist = updatedPsychiatristProfile;
+
+    if (req.files) {
+      let image = req.files.Image;
+      if (image) {
+        image.mv("./public/images/psychiatrist-images/" + req.params.id + ".png");
+      }
+    }
 
     // Redirect to the profile page
     res.redirect("/psychiatrist/profile");
@@ -660,13 +818,7 @@ router.post("/edit-product/:id", verifySignedIn, function (req, res) {
   });
 });
 
-router.get("/delete-product/:id", verifySignedIn, function (req, res) {
-  let productId = req.params.id;
-  psychiatristHelper.deleteProduct(productId).then((response) => {
-    fs.unlinkSync("./public/images/product-images/" + productId + ".png");
-    res.redirect("/psychiatrist/all-products");
-  });
-});
+
 
 router.get("/delete-all-products", verifySignedIn, function (req, res) {
   psychiatristHelper.deleteAllProducts().then(() => {
@@ -781,6 +933,45 @@ router.post('/add-review/:id', verifySignedIn, async function (req, res) {
   }
 });
 
+router.get("/patient-journal", verifySignedIn, async function (req, res) {
+  let psychiatrist = req.session.psychiatrist;
+  let psychiatristId = psychiatrist._id;
+
+  // Fetch all orders for the current psychiatrist
+  let patients = await psychiatristHelper.getAllUserwithJournal();
+
+
+  res.render("psychiatrist/patient-journal", {
+    psychiatrist: true,
+    layout: "layout",
+    patients,
+    psychiatrist
+  });
+});
+
+router.get("/view-patient-journal/:userId", verifySignedIn, async function (req, res) {
+  let psychiatrist = req.session.psychiatrist;
+  let userId = req.params.userId;
+
+  try {
+    const user = await psychiatristHelper.getUserDataByUserId(userId);
+
+    // Fetch all orders for the current psychiatrist and the specified user
+    let orders = await psychiatristHelper.getUserJournals(userId);
+
+    res.render("psychiatrist/view-patient-journal", {
+      psychiatrist: true,
+      layout: "layout",
+      orders,
+      user,
+      psychiatrist
+    });
+  } catch (error) {
+    console.error("Error fetching patient sessions:", error);
+    res.status(500).send("Server Error");
+  }
+
+});
 router.get("/view-patient-sessions/:userId", verifySignedIn, async function (req, res) {
   let psychiatrist = req.session.psychiatrist;
   let userId = req.params.userId;
@@ -838,9 +1029,11 @@ router.get('/assessment/:id', (req, res) => {
   });
 });
 router.get('/assessment-show/:id',async (req, res) => {
+ 
   let psychiatrist = req.session.psychiatrist;
   let orderId=req.params.id;
-  const assessment = await psychiatristHelper.getAssessments(orderId);
+  console.log("showwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",orderId)
+  const assessment = await psychiatristHelper.getAssessmentsOrder(orderId);
   res.render("psychiatrist/assessment-show", {
     psychiatrist: true,
     layout: "layout",
@@ -852,8 +1045,9 @@ router.get('/assessment-show/:id',async (req, res) => {
 router.get('/assessment/edit/:id',async (req, res) => {
   let psychiatrist = req.session.psychiatrist;
   let orderId=req.params.id;
-  const assessment = await psychiatristHelper.getAssessmentsId(orderId);
-  res.render("psychiatrist/edit-assessment", {
+  const assessment = await psychiatristHelper.getAssessmentsOrder(orderId);
+  
+  res.render("psychiatrist/editAssessment", {
     psychiatrist: true,
     layout: "layout",
     psychiatrist,
@@ -867,13 +1061,16 @@ router.post('/assessment/edit/:id', async (req, res) => {
     // Updated data from the submitted form.
     // Note: Depending on your form structure, you might need to massage the data.
     const updatedData = req.body;
+
+    console.log("dd")
     
-    const result = await updateAssessment(id, updatedData);
+    const result = await psychiatristHelper.updateAssessment(id, updatedData);
     if (result.modifiedCount > 0) {
       // Redirect to assessments list or display a success message.
-      res.redirect('/assessments');
+      res.redirect('/psychiatrist/set-assessment');
     } else {
-      res.send("No changes were made.");
+      res.redirect('/psychiatrist/set-assessment');
+      // res.send("No changes were made.");
     }
   } catch (err) {
     console.error(err);

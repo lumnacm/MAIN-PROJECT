@@ -1,0 +1,132 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+<div class="page-content-wrapper pt-4 main-content">
+    <div class="container-md">
+        <h4 class="mt-3 mb-3">Create Group Session</h4>
+        <form id="groupSessionForm">
+            <div class="mb-3">
+                <label class="form-label">Session Name</label>
+                <input class="form-control" name="sessionName" id="sessionName" type="text" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" id="description" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Select Participants</label>
+                <select id="participantsSelect" class="form-control" multiple>
+                    {{#each users}}
+                    <option value="{{this._id}}" data-fname="{{this.Fname}}" data-lname="{{this.Lname}}" data-phone="{{this.Phone}}">
+                        {{this.Lname}} {{this.Fname}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-success mt-3">Create Session</button>
+        </form>
+
+        <h5 class="mt-4">Selected Participants</h5>
+        <ul id="selectedParticipantsList"></ul> 
+    </div>
+</div>
+
+<script>
+    document.getElementById("groupSessionForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        let sessionName = document.getElementById("sessionName").value;
+        let description = document.getElementById("description").value;
+        let selectedUsers = [];
+        let selectBox = document.getElementById("participantsSelect");
+        let selectedParticipantsList = document.getElementById("selectedParticipantsList");
+        selectedParticipantsList.innerHTML = ""; // Clear previous list
+
+        for (let option of selectBox.selectedOptions) {
+            selectedUsers.push({
+                userId: option.value,
+                fname: option.getAttribute("data-fname"),
+                lname: option.getAttribute("data-lname"),
+                phone: option.getAttribute("data-phone")
+            });
+        }
+
+        // Send AJAX request
+        fetch("/psychiatrist/add-group-session", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                sessionName: sessionName,
+                description: description,
+                participants: selectedUsers
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                // Show participants list with "Send Meet Link" buttons
+                selectedUsers.forEach(user => {
+                    let listItem = document.createElement("li");
+                    listItem.innerHTML = `
+                        ${user.lname} ${user.fname} - ${user.phone} 
+                        <button class="btn btn-primary btn-sm sendMeetLinkBtn" data-phone="${user.phone}" data-fname="${user.fname}">
+                            Send Meet Link
+                        </button>
+                    `;
+                    selectedParticipantsList.appendChild(listItem);
+                });
+            } else {
+                alert("Failed to create session. Please try again.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("sendMeetLinkBtn")) {
+            let phoneNumber = event.target.getAttribute("data-phone");
+            let userName = event.target.getAttribute("data-fname");
+
+            if (phoneNumber) {
+                sendMeetLink(phoneNumber, userName);
+            } else {
+                alert(`Phone number for ${userName} is missing!`);
+            }
+        }
+    });
+
+    function sendMeetLink(phoneNumber, userName) {
+        console.log("Sending Meet link...");
+        let meetLink = "https://meet.google.com/pbt-sqru-xpz";
+        let message = encodeURIComponent(`Hello ${userName}, here is your Google Meet link: ${meetLink}. Please join now for your session.`);
+        let whatsappLink = `https://wa.me/${phoneNumber}?text=${message}`;
+
+        // Open WhatsApp link in a new tab
+        window.open(whatsappLink, "_blank");
+    }
+</script>

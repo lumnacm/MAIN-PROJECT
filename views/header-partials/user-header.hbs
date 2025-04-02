@@ -27,16 +27,23 @@
 
             <nav id="navmenu" class="navmenu">
                 <ul>
-                    <li><a href="#hero" class="active">Home<br></a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#doctors">Psychiatrist</a></li>
+                    <li><a href="/#hero" class="active">Home<br></a></li>
+                    <li><a href="/#about">About</a></li>
+                    <li><a href="/#services">Services</a></li>
+                    <li><a href="/#doctors">Psychiatrist</a></li>
+                    
                     {{#if user}}
                     <li class="dropdown"><a href="#"><span>{{user.Fname}}</span> <i
                                 class="bi bi-chevron-down toggle-dropdown"></i></a>
                         <ul>
                              <li><a href="/my-sessions">My Sessions</a></li>
                               <li><a href="/my-assessment">My Assessment</a></li>
+                               <li><a href="/my-journal">My Journals</a></li>
+                              <li><a href="/my-dashboard">My Dashboard</a></li>
+                              <li><a href="/all-notifications/{{user._id}}">Notification</a></li>
+                              <li><a href="/health-library">Health Library</a></li>
+                              <li><a href="/feedback">Feedback</a></li>
+                              <li><a href="/complaint">Complaint</a></li>
                             <li><a href="/profile">Profile</a></li>
                             <li><a href="/signout">Signout</a></li>
                         </ul>

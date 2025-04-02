@@ -62,12 +62,20 @@
                         <td>{{this.status}}</td>
                         <td>
                             {{#if (eq (getStatus this.deliveryDetails.selecteddate) 'Completed')}}
-                            <button class="btn btn-primary" onclick="openReviewModal('{{this._id}}', '{{this.review}}')">
-                                {{#if this.review}}Update Review{{else}}Add Review{{/if}}
-                            </button>
+                            {{#if this.isAssesment}}
+                             <a href="/psychiatrist/assessment/edit/{{this._id}}" class="btn btn-dark">update</a>
                             {{else}}
-                            <a href="/psychiatrist/assessment/{{this._id}}" class="btn btn-dark">{{#if this.review}}Update {{else}}Add {{/if}}</a>
-                            <a href="/psychiatrist/assessment-show/{{this._id}}" class="btn btn-primary"> show</a>
+                            <a href="/psychiatrist/assessment/{{this._id}}" class="btn btn-dark">Add</a>
+                            {{/if}}
+                          
+                          {{#if this.isAssesment}}<a href="/psychiatrist/assessment-show/{{this._id}}" class="btn btn-primary"> show</a>{{/if}}
+                            {{else}}
+                           {{#if this.isAssesment}}
+                             <a href="/psychiatrist/assessment/edit/{{this._id}}" class="btn btn-dark">update</a>
+                            {{else}}
+                            <a href="/psychiatrist/assessment/{{this._id}}" class="btn btn-dark">Add</a>
+                            {{/if}}
+                            {{#if this.isAssesment}}<a href="/psychiatrist/assessment-show/{{this._id}}" class="btn btn-primary"> show</a>{{/if}}
                             {{/if}}
                         </td>
                     </tr>
@@ -112,7 +120,7 @@
         phoneNumber = phoneNumber.replace(/\D/g, "");
 
         // Step 1: Generate a new Google Meet Link
-        let meetLink = "https://meet.google.com/new";
+        let meetLink = "https://meet.google.com/pbt-sqru-xpz";
 
         // Step 2: Create WhatsApp message with the Meet link
         let message = encodeURIComponent(`Hello ${userName}, here is your Google Meet link: ${meetLink}. Please join now for your session`);

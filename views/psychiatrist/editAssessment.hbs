@@ -19,7 +19,7 @@
   <div class="container mt-5">
     <h1>Edit Assessment</h1>
     <!-- Form action should point to your update route, e.g., /assessment/edit/:id -->
-    <form id="editAssessmentForm" action="/assessment/edit/{{assessment._id}}" method="POST">
+    <form id="editAssessmentForm" action="/psychiatrist/assessment/edit/{{assessment._id}}" method="POST">
       <div class="mb-3">
         <label for="assessmentTitle" class="form-label">Assessment Title</label>
         <input type="text" class="form-control" id="assessmentTitle" name="assessmentTitle" value="{{assessment.assessmentTitle}}" required>
@@ -30,7 +30,7 @@
         {{#each assessment.questions as |question qIndex|}}
           <div class="question-block" data-index="{{qIndex}}" data-option-index="{{question.options.length}}">
             <h5>Question {{addOne qIndex}}:</h5>
-            <input type="text" name="questions[{{qIndex}}][questionText]" class="form-control mb-3" value="{{question.questionText}}" required>
+            <input type="text" name="questions[{{qIndex}}][questionText]" class="form-control mb-3" value="{{question.questionText}}" >
             <div class="options-container">
               {{#each question.options as |option oIndex|}}
                 <div class="option-block">
@@ -40,8 +40,8 @@
                          id="q{{qIndex}}_option{{oIndex}}"
                          value="{{oIndex}}"
                          {{#ifCond oIndex '==' question.correctAnswer}}checked{{/ifCond}}
-                         required>
-                  <input type="text" name="questions[{{qIndex}}][options][]" class="form-control" value="{{option}}" placeholder="Option text" required>
+                         >
+                  <input type="text" name="questions[{{qIndex}}][options][]" class="form-control" value="{{option}}" placeholder="Option text" >
                 </div>
               {{/each}}
             </div>
@@ -124,7 +124,7 @@
           name: `questions[${qIndex}][correctAnswer]`,
           id: `q${qIndex}_option${optionIndex}`,
           value: optionIndex,
-          required: true
+         
         });
         optionBlock.appendChild(radioInput);
 
@@ -134,7 +134,7 @@
           name: `questions[${qIndex}][options][]`,
           class: 'form-control',
           placeholder: 'Option text',
-          required: true
+        
         });
         optionBlock.appendChild(optionInput);
 

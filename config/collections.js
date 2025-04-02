@@ -12,6 +12,12 @@ module.exports = {
     OFFICERS_COLLECTION: "officers",
     REGISTRATION: "registrations",
     SESSION_COLLECTION: "sessions",
+    GROUPSESSION_COLLECTION:"group-sessions",
+    JOURNAL_COLLECTION: "journals",
+    CMP_COLLECTION:"complaints",
     CHAT_COLLECTION: "chatroom",
     CHAT_COLLECTION: "messages",
+    SETTINGS_COLLECTION:'ai-settings',
+    ARTICLES_COLLECTION:"articles",
+    VIDEO_TESTIMONIALS_COLLECTION: "video_testimonials"
 }

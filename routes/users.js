@@ -1,8 +1,10 @@
 var express = require("express");
 var userHelper = require("../helper/userHelper");
 var chatHelper = require("../helper/chatHelper");
+var adminHelper = require("../helper/adminHelper");
 var router = express.Router();
 var db = require("../config/connection");
+const { default: axios } = require("axios");
 var collections = require("../config/collections");
 const psychiatristHelper = require("../helper/psychiatristHelper");
 const ObjectId = require("mongodb").ObjectID;
@@ -10,6 +12,103 @@ var {server} = require('../app');
 var socketIo = require('socket.io');
 
 var io = socketIo(server);
+const userMessage = [
+  // Basic greetings
+  ["hi", "hey", "hello"],
+  // Basic inquiry
+  ["how are you", "how's it going", "what's up"],
+  // Anxiety-related queries
+  ["i'm feeling anxious", "i feel nervous", "anxiety"],
+  // Depression-related queries
+  ["i'm depressed", "i feel sad", "feeling low"],
+  // Sleep issues
+  ["i can't sleep", "trouble sleeping", "insomnia"],
+  // Overwhelm/Stress
+  ["i feel overwhelmed", "i'm stressed", "overwhelmed"],
+  // Panic attacks
+  ["panic attack", "i'm having a panic attack", "panic"],
+  // Loneliness
+  ["i'm lonely", "i feel isolated", "feeling alone"],
+  // Hopelessness
+  ["i feel hopeless", "i feel despair", "no way out"],
+  // Lack of motivation
+  ["i have no motivation", "i feel unmotivated", "can't do anything"],
+  // Anger management
+  ["i feel angry", "i'm overwhelmed with anger", "anger issues"],
+  // Seeking help
+  ["should i seek help", "do i need a therapist", "is it time to talk to someone"],
+  // Additional coping questions
+  ["how do i manage my stress", "what can i do to reduce stress", "stress management"],
+  ["what are some effective relaxation techniques", "suggest relaxation exercises", "relaxation techniques"],
+  ["what are the signs of burnout", "am i burned out", "burnout symptoms"],
+  ["how do i improve my sleep quality", "tips for better sleep", "sleep improvement"],
+  ["how do i know if i need professional help", "should i seek professional help", "need therapy?"],
+  ["what is mindfulness meditation", "tell me about mindfulness", "mindfulness benefits"],
+  ["how can i build a support network", "tips for support system", "find support"],
+  ["i feel overwhelmed by work and life", "too much pressure", "overwhelmed by responsibilities"]
+];
+
+const botReply = [
+  // Basic greetings
+  ["Hello!", "Hi!", "Hey there!"],
+  // Basic inquiry response
+  ["I'm here to help! How are you feeling today?"],
+  // Anxiety response
+  ["I'm sorry you're feeling anxious. Try taking deep, slow breaths and consider reaching out to someone you trust if your anxiety persists."],
+  // Depression response
+  ["It sounds like you're feeling really low. Remember, it's okay to seek help—talking to someone might make a difference."],
+  // Sleep issues response
+  ["Difficulty sleeping can be tough. Establish a calming bedtime routine and consider relaxation techniques. If it continues, please consult a professional."],
+  // Overwhelm/Stress response
+  ["Feeling overwhelmed can be challenging. Taking a break or practicing mindfulness might help. It could also be useful to talk to a supportive person."],
+  // Panic attack response
+  ["If you're experiencing a panic attack, try focusing on your breathing and use grounding techniques. If it worsens, please seek immediate help."],
+  // Loneliness response
+  ["Loneliness can be hard to handle. It might help to reach out to a friend or join a support group. Professional help is also available."],
+  // Hopelessness response
+  ["I'm really sorry you're feeling hopeless. It might be beneficial to talk to a trusted person or professional. If you're in crisis, please seek help immediately."],
+  // Lack of motivation response
+  ["A lack of motivation can be overwhelming. Starting with small tasks might help, and consider reaching out to someone for support."],
+  // Anger management response
+  ["Anger can be intense. Techniques like deep breathing, exercise, or speaking with a counselor may help you manage these feelings."],
+  // Seeking help response
+  ["It might be time to talk to a professional who can offer personalized advice and support for your mental health needs."],
+  // Additional coping questions answers:
+  ["Effective stress management can include exercise, meditation, and time management. Consider seeking professional help if stress becomes overwhelming."],
+  ["Some effective relaxation techniques include deep breathing, progressive muscle relaxation, and mindfulness meditation. Regular practice can help reduce stress."],
+  ["Burnout signs may include chronic fatigue, irritability, and reduced performance. If you notice these signs, consider self-care and professional advice."],
+  ["Improving sleep quality often involves a consistent sleep schedule, a relaxing bedtime routine, and limiting screen time before bed. If problems persist, consult a professional."],
+  ["If you experience prolonged sadness, anxiety, or overwhelming stress, it might be time to speak with a mental health professional for personalized guidance."],
+  ["Mindfulness meditation is a practice that involves focusing on the present moment without judgment. It can help reduce stress and improve overall mental clarity."],
+  ["Building a support network can involve joining community groups, seeking therapy, or connecting with friends and family who understand your experiences."],
+  ["When work and life feel overwhelming, it can help to set priorities, delegate tasks, and take regular breaks. Professional guidance might also be beneficial."]
+];
+
+const fallbackReply = "I did not get that, please contact support.";
+
+const AI_API_URL = "https://api.together.xyz/v1/completions";
+ const AI_API_KEY = "f4a911ae033eb1b34093cc4d80e28881270d57f6626d605a0a1727fc169f95e9";
+ 
+ async function getAIResponse(userInput, settings) {
+   try {
+     const response = await axios.post(
+       AI_API_URL,
+       {
+         model: "mistralai/Mistral-7B-Instruct-v0.1",
+         prompt: `${settings.prompt}\nUser: ${userInput}\nAI:`,
+         max_tokens: 200,
+       },
+       {
+         headers: { Authorization: `Bearer ${AI_API_KEY}` },
+       }
+     );
+     return response.data.choices[0].text.trim();
+   } catch (error) {
+     console.error("AI response error:", error);
+     return "I'm facing an issue understanding your request. Please try again later.";
+   }
+ }
+ 
 
 const verifySignedIn = (req, res, next) => {
   if (req.session.user) {
@@ -27,6 +126,59 @@ router.get("/", async function (req, res, next) {
 
   res.render("users/home", { admin: false, psychiatrists, user, sessions });
 });
+
+router.post("/chatbot", async (req, res) => {
+  try {
+    const userInput = req.body.message?.toLowerCase() || "";
+    if (!userInput) {
+      return res.json({ reply: "Please enter a valid message." });
+    }
+
+    let reply = fallbackReply;
+    console.log(userInput,"B444")
+
+    // Check for predefined responses
+    for (let i = 0; i < userMessage.length; i++) {
+      if (userMessage[i].some(msg => userInput.includes(msg))) {
+        reply = botReply[i][0];
+        console.log( reply," reply----userInput.includes(msg)")
+        break;
+      }
+    }
+
+    // Handle room availability query
+    if (userInput.includes("room availability")) {
+      const { checkin, checkout, guests } = req.body; // Expecting data in request body
+      if (!checkin || !checkout || !guests) {
+        return res.json({ reply: "Please provide check-in date, check-out date, and number of guests." });
+      }
+      try {
+        const response = await axios.get(
+          `https://api.example.com/rooms?checkin=${checkin}&checkout=${checkout}&guests=${guests}`
+        );
+        reply = response.data.length ? `Available rooms: ${response.data.map(r => r.name).join(", ")}` : "No rooms available.";
+      } catch (error) {
+        console.error("Room availability error:", error);
+        reply = "Error fetching room availability. Please try again later.";
+      }
+    }
+
+    // If no predefined response, get AI-generated response
+    if (reply === fallbackReply) {
+      
+      const settings = await adminHelper.getAIChatbotSettings();
+      reply = await getAIResponse(userInput, settings);
+      console.log( reply,"=== fallbackReply")
+    }
+
+    res.json({ reply });
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    res.status(500).json({ reply: "An error occurred. Please try again later." });
+  }
+});
+
+
 
 
 router.get("/notifications", verifySignedIn, function (req, res) {
@@ -514,6 +666,15 @@ router.get("/cancel-order/:id", verifySignedIn, function (req, res) {
     res.redirect("/orders");
   });
 });
+router.get("/all-notifications/:id", verifySignedIn, function (req, res) {
+  let orderId = req.params.id;
+  let user = req.session.user;
+  
+  userHelper.getnotificationById(orderId).then((notifications) => {
+    res.render("users/notifications", { admin: false, user ,notifications});
+  });
+});
+
 
 router.post("/search", verifySignedIn, async function (req, res) {
   let user = req.session.user;
@@ -570,8 +731,165 @@ router.get("/my-assessment", verifySignedIn, async function (req, res) {
     res.status(500).send("Server Error");
   }
 });
+router.get('/health-library', async (req, res) => {
+  let user = req.session.user;
+  let articles = await userHelper.getPublishedArticles();
+  res.render('users/health-library', {admin: false, user, articles });
+});
+router.get('/my-journal',verifySignedIn, async (req, res) => {
+  let user = req.session.user;
+  let userId = user._id;
+  let jrns = await userHelper.getUserJournals(userId);
+  console.log("resjjjjj",jrns)
+
+  res.render('users/my-journal', {admin: false, user, jrns });
+});
+router.post("/add-journal", verifySignedIn, function (req, res) {
+  console.log("reshhhhhhhhhhhhhhhhhhhhhhhhhhh",req.body)
+  let user = req.session.user;
+  let userId = user._id;
+  let userName= user.Fname + user.Lname;
+  userHelper.addJournal(req.body,userId,userName).then(() => {
+    res.send({status:true});
+  });
+});
 
 
+router.get("/check-availability", async (req, res) => {
+  try {
+      const { secId, selecteddate,selectedtime } = req.query;
+
+      if (!secId || !selecteddate) {
+          return res.status(400).json({ error: "Missing secId or selecteddate" });
+      }
+
+
+      const isAvailable = await userHelper.checkAvailability(secId, selecteddate,selectedtime);
+
+      if (isAvailable) {
+          return res.json({ available: true, message: "Room is available" });
+      } else {
+          return res.json({ available: false, message: "Room is not available" });
+      }
+  } catch (error) {
+      console.error("Error checking room availability:", error);
+      res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.get("/my-dashboard", verifySignedIn, async function (req, res) {
+  let user = req.session.user;
+  let userId = user._id;
+
+  try {
+      let assessment = await userHelper.getUserAssessment(userId);
+      let sessions = await userHelper.getUserSessions(userId);
+
+      // Calculate total assessment score (Assuming each assessment has a score field)
+      let totalScore = assessment.reduce((sum, a) => sum + (a.score || 0), 0);
+
+      // Count pending assessments (assuming pending status is 'pending')
+      let pendingAssessments = assessment.filter(a => a.status === "pending").length;
+
+      res.render("users/my-dashboard", { 
+          admin: false, 
+          user, 
+          sessions, 
+          assessment, 
+          totalScore, 
+          pendingAssessments 
+      });
+
+  } catch (error) {
+      console.error("Error fetching user sessions:", error);
+      res.status(500).send("Server Error");
+  }
+});
+
+router.get("/feedback", verifySignedIn, async function (req, res) {
+  let user = req.session.user;
+  let userId = user._id;
+
+  try {
+    let sessions = await userHelper.getUserSessions(userId);
+    res.render("users/feedback", { admin: false, user, sessions });
+  } catch (error) {
+    console.error("Error fetching user sessions:", error);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.get("/complaint", verifySignedIn, async function (req, res) {
+  let user = req.session.user;
+  let userId = user._id;
+
+  try {
+    let sessions = await userHelper.getUserSessions(userId);
+    res.render("users/complaint", { admin: false, user, sessions });
+  } catch (error) {
+    console.error("Error fetching user sessions:", error);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.post("/feedback/submit", async (req, res) => {
+  let user = req.session.user;
+  let userId = user._id;
+  console.log("feedddddd")
+  try {
+      const { psychiatristId, sessionName, feedbackText } = req.body;
+      console.log("feedddddd", psychiatristId,"user:::", userId)
+      if (!psychiatristId || !userId || !feedbackText) {
+          return res.status(400).json({ error: "All fields are required." });
+      }
+
+      const feedback = {
+          psychiatristId: new ObjectId(psychiatristId),
+          userId: new ObjectId(userId),
+          sessionName,
+          feedbackText,
+          createdAt: new Date()
+      };
+
+      await db.get().collection(collections.FEEDBACK_COLLECTION).insertOne(feedback);
+      res.json({ success: true, message: "Feedback submitted successfully." });
+  } catch (error) {
+      console.error("Error submitting feedback:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.post("/complaint/submit", async (req, res) => {
+  let user = req.session.user;
+  let userId = user._id;
+  let username= user.Lname + user.Fname;
+  console.log("feedddddd",req.body)
+  try {
+      const { psychiatristId, sessionName, complaints, subject} = req.body;
+      console.log("feedddddd", psychiatristId,"user:::", userId)
+      if (!psychiatristId || !userId || !complaints) {
+          return res.status(400).json({ error: "All fields are required." });
+      }
+
+      const feedback = {
+          psychiatristId: new ObjectId(psychiatristId),
+          userId: new ObjectId(userId),
+          sessionName,
+          complaints,
+          username:username,
+          subject,
+          createdAt: new Date(),
+          
+      };
+
+      await db.get().collection(collections.CMP_COLLECTION).insertOne(feedback);
+      res.json({ success: true, message: "submitted successfully." });
+  } catch (error) {
+      console.error("Error submitting feedback:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 
 

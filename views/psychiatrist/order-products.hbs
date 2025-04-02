@@ -52,10 +52,10 @@
                             {{#if (eq (getStatus order.session.date) 'Completed')}}
                             <a href="/psychiatrist/chat/{{order.user._id}}/{{psychiatrist._id}}/{{order._id}}"
                                 class="btn btn-dark">Chat with {{order.user.Fname}}</a>
-                            <button class="btn btn-primary"
+                            {{!-- <button class="btn btn-primary"
                                 onclick="openReviewModal('{{order._id}}', '{{order.review}}')">
                                 {{#if order.review}}Update Review{{else}}Add Review{{/if}}
-                            </button>
+                            </button> --}}
                             {{else}}
                             <a href="/psychiatrist/chat/{{order.user._id}}/{{psychiatrist._id}}/{{order._id}}"
                                 class="btn btn-dark">Chat with {{order.user.Fname}}</a>
@@ -104,7 +104,7 @@
         phoneNumber = phoneNumber.replace(/\D/g, "");
 
         // Step 1: Generate a new Google Meet Link
-        let meetLink = "https://meet.google.com/new";
+        let meetLink = "https://meet.google.com/pbt-sqru-xpz";
 
         // Step 2: Create WhatsApp message with the Meet link
         let message = encodeURIComponent(`Hello ${userName}, here is your Google Meet link: ${meetLink}. Please join now for your session`);

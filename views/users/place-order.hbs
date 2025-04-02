@@ -64,7 +64,9 @@
                         <div class="card p-4">
                             <label>Select a date and time</label>
                             <input type="date" class="form-control" name="selecteddate" id="dateInput" required />
-                            <input type="time" class="form-control" name="time">
+                            <input type="time" class="form-control" id="dateTime" name="time" required>
+                            <div id="availabilityMessage" style="color: red; display: none;"></div>
+                            <button id="check" type="button" class="btn btn-dark mt-3 w-100">Check Availability</button>
 
                             {{#if error}}
                             <div style="color: red;">
@@ -81,7 +83,7 @@
                                 <label class="form-check-label" for="darkRadio2">Pay & Book</label>
                             </div>
 
-                            <button class="btn btn-dark mt-3 w-100" type="submit">Book Now</button>
+                            <button id="smt" class="btn btn-dark mt-3 w-100" type="submit" disabled>Book Now</button>
             </form>
         </div>
     </div>
@@ -93,6 +95,43 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+document.getElementById("check").addEventListener("click", async function (event) {
+    event.preventDefault();  // Prevents form submission on button click
+    const selectedDate = document.getElementById("dateInput").value;
+    const selectedTime = document.getElementById("dateTime").value;
+    const secId = "{{session._id}}";
+
+    if (!selectedDate) {
+        alert("Please select a date first.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/check-availability/?secId=${secId}&selecteddate=${selectedDate}&selectedtime=${selectedTime}`);
+        const data = await response.json();
+        const availabilityMessage = document.getElementById("availabilityMessage");
+        const bookButton = document.getElementById("smt");
+
+        if (data.available) {
+            availabilityMessage.style.color = "green";
+            availabilityMessage.textContent = "slot is available!";
+            bookButton.disabled = false;
+        } else {
+            availabilityMessage.style.color = "red";
+            availabilityMessage.textContent = "slot is not available. Please change time";
+            bookButton.disabled = true;
+        }
+
+        availabilityMessage.style.display = "block";
+    } catch (error) {
+        console.error("Error checking availability:", error);
+        alert("Something went wrong! Please try again.");
+    }
+});
+</script>
+
 
 <script>
     // Your script that uses jQuery

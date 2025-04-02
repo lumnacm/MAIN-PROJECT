@@ -55,6 +55,9 @@
                             {{else if (eq (getStatus formatDateDD this.deliveryDetails.selecteddate) 'Ongoing')}}
                             <a href="/chat/{{../user._id}}/{{this.session.psychiatristId}}/{{this._id}}"
                                 class="btn btn-success">Send Message</a>
+                            {{else if (eq this.status 'Rejected')}}
+                            <button
+                                class="btn btn-success" disabled>Send Message </button>
                             {{else}}
                             <a href="/chat/{{../user._id}}/{{this.session.psychiatristId}}/{{this._id}}"
                                 class="btn btn-success">Send Message</a>

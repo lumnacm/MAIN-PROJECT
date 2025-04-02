@@ -1,0 +1,67 @@
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Manage Psychiatrists</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                <li class="breadcrumb-item">Psychiatrist</li>
+                <li class="breadcrumb-item active">All-Psychiatrist</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+ 
+         <div class="table-responsive" style="overflow: visible;">
+            <table class="table border table-bordered" id="table">
+                <thead class="table-dark">
+                    <tr class="align-middle">
+                        <th scope="col">Selected Date</th>
+                        <th scope="col">Selected Time</th>
+                        <th scope="col">Session Name</th>
+                        <th scope="col">Session Details</th>
+                        <th scope="col">Patient name</th>
+                        <th scope="col">Doctor name</th>
+                        <th scope="col">Session Status</th>
+                        <th scope="col">Order Status</th>
+                        {{!-- <th scope="col">Actions</th> --}}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{#each orders}}
+                    <tr class="align-middle">
+                         <td>{{formatDateDD this.deliveryDetails.selecteddate}}</td>
+                        <td>{{ formatTime this.deliveryDetails.time}}</td>
+                        <td><b>{{this.session.wname}} </b> </td>
+                        <td>{{this.session.desc}}</td>
+                        <td>{{this.user.Fname}} {{this.user.Lname}}</td>
+                        <td>{{this.session.doctor}}</td>
+                        <td>{{getStatus this.deliveryDetails.selecteddate}}</td>
+                        <td>{{this.status}}</td>
+                        {{!-- <td>
+                            {{#if (eq (getStatus this.deliveryDetails.selecteddate) 'Completed')}}
+                            <button class="btn btn-primary" onclick="openReviewModal('{{this._id}}', '{{this.review}}')">
+                                {{#if this.review}}Update Review{{else}}Add Review{{/if}}
+                            </button>
+                            {{else}}
+                            <a href="/psychiatrist/chat/{{this.user._id}}/{{this.psychiatristId}}/{{this._id}}" class="btn btn-dark">Chat with {{this.user.Fname}}</a>
+                            <button class="btn btn-primary" onclick="createMeetAndShare('{{this.user.Phone}}', '{{this.user.Fname}}')">Start Video Call</button>
+                            {{/if}}
+                        </td> --}}
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->

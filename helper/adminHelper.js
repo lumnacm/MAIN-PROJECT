@@ -31,6 +31,36 @@ module.exports = {
       });
   },
 
+  getAllOrder: () => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let orders = await db
+            .get()
+            .collection(collections.ORDER_COLLECTION)
+            .find() // Filter by psychiatrist ID
+            .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+            .toArray();
+          resolve(orders);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+    getAllComplaints:()=> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          let orders = await db
+            .get()
+            .collection(collections.CMP_COLLECTION)
+            .find() // Filter by psychiatrist ID
+            .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+            .toArray();
+          resolve(orders);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
 
   ///////GET ALL Notifications/////////////////////                                            
   getAllnotifications: () => {
@@ -288,6 +318,126 @@ module.exports = {
     });
   },
 
+  getAIChatbotSettings: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const settings = await db.get().collection(collections.SETTINGS_COLLECTION).findOne({ type: 'ai-chatbot' });
+        resolve(settings || { prompt: '' });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
+  updateAIChatbotSettings: (settings) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await db.get().collection(collections.SETTINGS_COLLECTION).updateOne(
+          { type: 'ai-chatbot' },
+          { $set: settings },
+          { upsert: true }
+        );
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
+  getAllArticles: async () => {
+    return await db.get().collection(collections.ARTICLES_COLLECTION).find().toArray();
+},
+getArticleById: async (id) => {
+    return await db.get().collection(collections.ARTICLES_COLLECTION).findOne({ _id: objectId(id) });
+},
+addArticle: async (article,callback) => {
+    article.status="draft";
+    article.published = false;
+    await db.get().collection(collections.ARTICLES_COLLECTION).insertOne(article).then((data) => {
+      callback(data.ops[0]._id); // Return the inserted session ID
+    })
+    .catch((error) => {
+      callback(null, error);
+    });
+},
+updateArticle: async (id, article) => {
+    await db.get().collection(collections.ARTICLES_COLLECTION).updateOne({ _id: objectId(id) }, { $set: article });
+},
+publishArticle: async (id,status) => {
+    await db.get().collection(collections.ARTICLES_COLLECTION).updateOne({ _id: objectId(id) }, { $set: { published: true ,status:status} });
+},
+unpublishArticle: async (id,status) => {
+    await db.get().collection(collections.ARTICLES_COLLECTION).updateOne({ _id: objectId(id) }, { $set: { published: false ,status:status} });
+},
+deleteArticle: async (id) => {
+  return await db.get().collection("articles").deleteOne({ _id: objectId(id) });
+},
+
+//reports
+getOrderByStatus: async (status, fromDate, toDate) => {
+  try {
+      console.log("%%%%%%%%%%%%%%%%%ppppppppp%%%%%%%%%%%%%", status, fromDate, toDate);
+
+      let query = { status: status };
+
+      if (fromDate && toDate) {
+          console.log("Filtering by date range");
+
+          // Convert fromDate and toDate to actual Date objects
+          let startDate = new Date(fromDate + "T00:00:00.000Z");  // Start of the day
+          let endDate = new Date(toDate + "T23:59:59.999Z");      // End of the day
+
+          query.date = {
+              $gte: startDate,  
+              $lte: endDate
+          };
+      }
+
+      let complaints = await db.get()
+          .collection(collections.ORDER_COLLECTION)
+          .find(query)
+          .sort({ date: -1 })
+          .toArray();
+
+      console.log("%%%%%%%%%%%%%%%%%cccccccccccccc%%%%%%%%%%%%%", complaints);
+      return complaints;
+  } catch (error) {
+      console.error("Error fetching complaints:", error);
+      return [];
+  }
+},
+getOrdersByStatus: async (status, fromDate, toDate) => {
+  try {
+      console.log("%%%%%%%%%%%%%%%%%ppppppppp%%%%%%%%%%%%%", status, fromDate, toDate);
+
+      let query = {};
+
+      if (fromDate && toDate) {
+          console.log("Filtering by date range");
+
+          // Convert fromDate and toDate to actual Date objects
+          let startDate = new Date(fromDate + "T00:00:00.000Z");  // Start of the day
+          let endDate = new Date(toDate + "T23:59:59.999Z");      // End of the day
+
+          query.date = {
+              $gte: startDate,  
+              $lte: endDate
+          };
+      }
+
+      let complaints = await db.get()
+          .collection(collections.ORDER_COLLECTION)
+          .find(query)
+          .sort({ date: -1 })
+          .toArray();
+
+      console.log("%%%%%%%%%%%%%%%%%cccccccccccccc%%%%%%%%%%%%%", complaints);
+      return complaints;
+  } catch (error) {
+      console.error("Error fetching complaints:", error);
+      return [];
+  }
+},
 
 
   addProduct: (product, callback) => {

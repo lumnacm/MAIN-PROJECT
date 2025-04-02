@@ -19,6 +19,49 @@ module.exports = {
         });
     });
   },
+  getAllUserwithJournal: async () => {
+    try {
+      const usersWithJournals = await db.get()
+        .collection(collections.JOURNAL_COLLECTION)
+        .aggregate([
+          {
+            $group: {
+              _id: "$userId", // Group by userId
+              username: { $first: "$username" } // Pick first username
+            }
+          },
+          {
+            $project: {
+              _id: 0, 
+              userId: "$_id", // Rename _id to userId
+              username: 1
+            }
+          }
+        ])
+        .toArray();
+  
+      return usersWithJournals;
+    } catch (error) {
+      console.error("Error fetching users with journals:", error);
+      throw error;
+    }
+  },
+   getUserJournals:(userId) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch notifications based on userId (converted to ObjectId)
+          const jrn = await db.get()
+            .collection(collections.JOURNAL_COLLECTION)
+            .find({ userId: userId }) // Filter by logged-in userId
+            .toArray();
+  
+          resolve(jrn);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+  
   getAllPatients:(Id)=>{
     return new Promise(async (resolve, reject) => {
       let users = await db
@@ -62,13 +105,38 @@ module.exports = {
         });
     });
   },
+    getAllUsers: () => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const users = await db
+            .get()
+            .collection(collections.USERS_COLLECTION)
+            .find()
+            .sort({ createdAt: -1 })  // Sort by createdAt in descending order
+            .toArray();
+  
+          resolve(users);
+        } catch (err) {
+          reject(err);  // Handle any error during fetching
+        }
+      });
+    },
 
   //assessment
   saveAssessment: async (data,psychiatristId,user)=> {
     data.createdAt = new Date();
     data.psychiatristId= objectId(psychiatristId);
     data.userId=user.userId;
+    data.isAnswered=false;
     try {
+      const upt= await db.get().collection(collections.ORDER_COLLECTION).updateOne(
+        { _id: objectId(data.orderId) },
+          {
+            $set: {
+              isAssesment:true
+            },
+          }
+      );
       const result = await db.get().collection(collections.ASSESSMENT_COLLECTION).insertOne(data);
       // Attach the insertedId to the data object
       data._id = result.insertedId;
@@ -82,13 +150,51 @@ module.exports = {
     const result = await db.get().collection(collections.ORDER_COLLECTION).findOne({_id:objectId(id)     });
     return result;
   },
-  getAssessments: async (Id)=> {
-
+  getAssessmentsOrder:async(orderId)=>{
     try {
-      const result = await db.get().collection(collections.ASSESSMENT_COLLECTION).findOne({orderId:Id      });
+      const result = await db.get().collection(collections.ASSESSMENT_COLLECTION).findOne({orderId:orderId    });
+      return result;
+    } catch (err) {
+      console.error("showrrrrr:", err);
+      throw err;
+    }
+
+  },
+  getAssessments: async (Id)=> {
+   
+    try {
+      const result = await db.get().collection(collections.ASSESSMENT_COLLECTION).findOne({_id:objectId(Id)      });
       return result;
     } catch (err) {
       console.error("Error saving assessment:", err);
+      throw err;
+    }
+  },
+  getResult:async( Id)=>{
+    try {
+      const result = await db.get()
+        .collection(collections.ASSESSMENT_COLLECTION)
+        .findOne({ _id: objectId(Id) });
+        
+      if (result && result.questions && Array.isArray(result.questions)) {
+        result.questions.forEach((question, index) => {
+          // Check if there's an answer for this question.
+          if (result.answers && result.answers[index] !== undefined) {
+            const answerIndex = parseInt(result.answers[index], 10);
+            // Ensure that the options array exists and the answer index is valid.
+            if (Array.isArray(question.options) && question.options[answerIndex] !== undefined) {
+              question.userAnswer = question.options[answerIndex];
+            } else {
+              question.userAnswer = "No answer provided";
+            }
+          } else {
+            question.userAnswer = "No answer provided";
+          }
+        });
+      }
+      return result;
+    } catch (err) {
+      console.error("Error retrieving assessment:", err);
       throw err;
     }
   },
@@ -102,18 +208,50 @@ module.exports = {
       throw err;
     }
   },
-  getAllAnsweredAssesement:async(Id)=> {
+  getAllAnsweredAssesement: async (Id) => {
     try {
-      const result = await db.get().collection(collections.ASSESSMENT_COLLECTION).find({
-        psychiatristId: objectId(Id),
-        answers: { $exists: true }    }).toArray()
+      const result = await db.get().collection(collections.ASSESSMENT_COLLECTION).aggregate([
+        {
+          $match: {
+            psychiatristId: objectId(Id),
+            isAnswered: true
+          }
+        },
+        {
+          $lookup: {
+            from: collections.USERS_COLLECTION, // Replace with your actual user collection name
+            localField: "userId",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        {
+          $unwind: "$userDetails" // Convert array to object
+        },
+        {
+          $project: {
+            _id: 1,
+            assessmentTitle: 1,
+            questions: 1,
+            answers: 1,
+            orderId: 1,
+            createdAt: 1,
+            psychiatristId: 1,
+            userId: 1,
+            "userDetails.Fname": 1,
+            "userDetails.Lname": 1,
+            "userDetails.Email": 1,
+            "userDetails.Phone": 1
+          }
+        }
+      ]).toArray();
+   console.log(result)
       return result;
     } catch (err) {
-      console.error("Error saving assessment:", err);
+      console.error("Error fetching answered assessments:", err);
       throw err;
     }
-
-  },
+  },  
   updateAssessment:async (id, updatedData)=> {
     try {
       
@@ -188,12 +326,45 @@ module.exports = {
           ])
           .toArray();
 
+          notifications = notifications.map(notification => ({
+            ...notification,
+            userFname: notification.userDetails ? notification.userDetails.Fname : 'Unknown',  // Fname of user or 'Unknown' if no user found
+          }));
+ console.log("nott",notifications,"^^^")  
+
         resolve(notifications);
       } catch (error) {
         reject(error);
       }
     });
   },
+
+  getAllUsersFromOrders: async (psychiatristId) => {
+    try {
+        let users = await db
+            .get()
+            .collection(collections.ORDER_COLLECTION)
+            .aggregate([
+                {
+                    $match: { psychiatristId: objectId(psychiatristId) } // Filter by psychiatrist ID
+                },
+                {
+                    $group: {
+                        _id: "$userId",  // Group by userId
+                        userId: { $first: "$userId" },  // Keep userId
+                        user: { $first: "$user" }  // Keep first user details
+                    }
+                }
+            ])
+            .toArray();
+        
+        return users;
+    } catch (error) {
+        console.error("Error fetching users from orders:", error);
+        throw error;
+    }
+},
+
 
 
   ///////ADD notification DETAILS/////////////////////                                            
@@ -262,7 +433,36 @@ module.exports = {
     });
   },
 
+  getAllFeedbacks: async (staffId) => {
+    console.log(staffId)
+    return  await db.get().collection(collections.FEEDBACK_COLLECTION).aggregate([
+      {
+          $lookup: {
+              from: collections.USERS_COLLECTION,
+              localField: "userId", //feed
+              foreignField: "_id",
+              as: "user"
+          }
+      },
+      { $unwind: "$user" },
+      {
+          $match: { "psychiatristId": objectId(staffId) }
+      },
+      {
+          $project: {
+              _id: 1,
+              orderId: 1,
+              "user.Fname":1,
+              "user.Lname":1,
+              userId: 1,
+              feedbackText: 1,
+              sessionName: 1,
+              createdAt: 1
+          }
+      }
+  ]).toArray();
 
+}, 
 
   getFeedbackByPsychiatristId: (psychiatristId) => {
     return new Promise(async (resolve, reject) => {
@@ -306,6 +506,16 @@ module.exports = {
         .get()
         .collection(collections.SESSION_COLLECTION)
         .find({ psychiatristId: objectId(psychiatristId) }) // Filter by psychiatristId
+        .toArray();
+      resolve(sessions);
+    });
+  },
+  getAllGroupsessions: (psychiatristId) => {
+    return new Promise(async (resolve, reject) => {
+      let sessions = await db
+        .get()
+        .collection(collections.GROUPSESSION_COLLECTION)
+        .find({  }) // Filter by psychiatristId
         .toArray();
       resolve(sessions);
     });
@@ -468,11 +678,11 @@ module.exports = {
     });
   },
 
-  deleteProduct: (productId) => {
+  deleteSession: (Id) => {
     return new Promise((resolve, reject) => {
       db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .removeOne({ _id: objectId(productId) })
+        .collection(collections.SESSION_COLLECTION)
+        .removeOne({ _id: objectId(Id) })
         .then((response) => {
           console.log(response);
           resolve(response);
@@ -657,10 +867,12 @@ module.exports = {
           .collection(collections.ORDER_COLLECTION)
           .deleteOne({ _id: objectId(orderId) });
 
+          resolve();
+
         // Get the current seat count from the session
-        const sessionDoc = await db.get()
-          .collection(collections.SESSION_COLLECTION)
-          .findOne({ _id: objectId(sessionId) });
+        // const sessionDoc = await db.get()
+        //   .collection(collections.SESSION_COLLECTION)
+        //   .findOne({ _id: objectId(sessionId) });
 
         // Check if the seat field exists and is a string
 

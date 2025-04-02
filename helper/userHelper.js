@@ -24,6 +24,38 @@ module.exports = {
       resolve(registrations);
     });
   },
+  getUserJournals:(userId) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Fetch notifications based on userId (converted to ObjectId)
+        const jrn = await db.get()
+          .collection(collections.JOURNAL_COLLECTION)
+          .find({ userId: userId }) // Filter by logged-in userId
+          .toArray();
+
+        resolve(jrn);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  addJournal:(data,id,name)=>{
+    return new Promise(async (resolve, reject) => {
+      data.userId=id;
+      data.username=name;
+      data.createdAt= new Date(); 
+
+      try {
+        await db.get()
+          .collection(collections.JOURNAL_COLLECTION)
+          .insertOne(data);
+        resolve(); // Resolve the promise on success
+      } catch (error) {
+        reject(error); // Reject the promise on error
+      }
+    });
+
+  },
  
 
   getnotificationById: (userId) => {
@@ -41,7 +73,23 @@ module.exports = {
       }
     });
   },
+  getPublishedArticles: async () => {
+    return await db.get().collection(collections.ARTICLES_COLLECTION).find({ 
+      published:true}).toArray();
+},
+ checkAvailability:async function( secId, selecteddate,selectedtime) {
+ 
+  const existingBooking =  await db
+  .get()
+  .collection(collections.ORDER_COLLECTION).findOne({
+      "session._id": objectId( secId),
+      "deliveryDetails.selecteddate": selecteddate,
+      "deliveryDetails.time": selectedtime
 
+  });
+  // console.log("jjj-",existingBooking, selecteddate,selectedtime,"jjjjj")
+  return !existingBooking; // Returns true if no matching order is found
+},
 
 
   registration: (registrationData, callback) => {
@@ -630,7 +678,8 @@ module.exports = {
       .collection(collections.ASSESSMENT_COLLECTION)
       .updateOne(
         { _id: ObjectId(Id) },
-        { $set: { answers: answers } }
+        { $set: { answers: answers ,
+          isAnswered:true} }
       );
     return result;
         }catch (err) {

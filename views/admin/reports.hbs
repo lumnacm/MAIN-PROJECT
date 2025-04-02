@@ -1,0 +1,145 @@
+<style>
+       .feature-card .card {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+.feature-card .card img {
+  max-width: 2rem;
+  max-height: 2rem;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+</style>
+<main id="main" class="main">
+   <div class="pagetitle">
+     <h1></h1>
+   </div>
+ 
+   <section class="section">
+     <div class="row">
+       <div class="col-lg-12">
+         <div class="card">
+           <div class="card-body">
+             <h5 class="card-title">Manage Reports</h5>
+             <div class="row g-3">
+                    <div class="col-3">
+                        <a href="#" class="report-trigger" data-route="/admin/placed-report">
+                            <div class="feature-card mx-auto text-center">
+                                <div class="card mx-auto bg-gray">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <p class="mb-0">Placed Orders Report</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-3">
+                        <a href="#" class="report-trigger" data-route="/admin/accepted-report">
+                            <div class="feature-card mx-auto text-center">
+                                <div class="card mx-auto bg-gray">
+                                    <i class="bi bi-bookmark-check-fill"></i>
+                                </div>
+                                <p class="mb-0">Accepted Orders Report</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-3">
+                        <a href="#" class="report-trigger" data-route="/admin/rejected-report">
+                            <div class="feature-card mx-auto text-center">
+                                <div class="card mx-auto bg-gray"><i class="bi bi-x-circle-fill text-primary"></i></div>
+                                <p class="mb-0">Rejected Orders Report</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-3">
+                        <a href="#" class="report-trigger" data-route="/admin/order-report">
+                            <div class="feature-card mx-auto text-center">
+                                <div class="card mx-auto bg-gray"><i class="bi bi-file-earmark-bar-graph-fill text-primary"></i></div>
+                                <p class="mb-0">All Orders Report</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   </section>
+ </main>
+
+
+ <!-- Modal for Date Selection -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Date Range</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="mb-3">
+                        <label for="fromDate" class="form-label">From Date</label>
+                        <input type="date" id="fromDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="toDate" class="form-label">To Date</label>
+                        <input type="date" id="toDate" class="form-control" required>
+                    </div>
+                    <input type="hidden" id="reportRoute">
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".report-trigger").on("click", function () {
+            let route = $(this).data("route");
+            $("#reportRoute").val(route);
+            $("#fromDate").val(""); // Clear previous selections
+            $("#toDate").val("");
+            $("#error-message").text(""); // Clear previous errors
+            $("#reportModal").modal("show");
+        });
+
+        $("#reportForm").on("submit", function (e) {
+            e.preventDefault();
+
+            let fromDate = $("#fromDate").val();
+            let toDate = $("#toDate").val();
+            let route = $("#reportRoute").val();
+
+            // Validation: Check if both dates are filled
+            if (!fromDate || !toDate) {
+                $("#error-message").text("Both From Date and To Date are required.");
+                return;
+            }
+
+            // Validation: Check if From Date is not greater than To Date
+            if (new Date(fromDate) > new Date(toDate)) {
+                $("#error-message").text("From Date cannot be later than To Date.");
+                return;
+            }
+
+            // If validation passes, redirect to the report page
+            window.location.href = route + "?fromDate=" + fromDate + "&toDate=" + toDate;
+        });
+    });
+</script>

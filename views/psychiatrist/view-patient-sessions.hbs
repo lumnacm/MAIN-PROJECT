@@ -61,14 +61,14 @@
                         <td>{{getStatus this.deliveryDetails.selecteddate}}</td>
                         <td>{{this.status}}</td>
                         <td>
-                            {{#if (eq (getStatus this.deliveryDetails.selecteddate) 'Completed')}}
+                            {{!-- {{#if (eq (getStatus this.deliveryDetails.selecteddate) 'Completed')}}
                             <button class="btn btn-primary" onclick="openReviewModal('{{this._id}}', '{{this.review}}')">
                                 {{#if this.review}}Update Review{{else}}Add Review{{/if}}
                             </button>
-                            {{else}}
+                            {{else}} --}}
                             <a href="/psychiatrist/chat/{{this.user._id}}/{{this.psychiatristId}}/{{this._id}}" class="btn btn-dark">Chat with {{this.user.Fname}}</a>
                             <button class="btn btn-primary" onclick="createMeetAndShare('{{this.user.Phone}}', '{{this.user.Fname}}')">Start Video Call</button>
-                            {{/if}}
+                            {{!-- {{/if}} --}}
                         </td>
                     </tr>
                     {{/each}}
@@ -112,7 +112,7 @@
         phoneNumber = phoneNumber.replace(/\D/g, "");
 
         // Step 1: Generate a new Google Meet Link
-        let meetLink = "https://meet.google.com/new";
+        let meetLink = "https://meet.google.com/pbt-sqru-xpz";
 
         // Step 2: Create WhatsApp message with the Meet link
         let message = encodeURIComponent(`Hello ${userName}, here is your Google Meet link: ${meetLink}. Please join now for your session`);

@@ -40,8 +40,14 @@
                         <td>{{this.assessmentTitle}}</td>
                         <td>{{this.createdAt}}</td>
                         <td>
+                             {{#if this.isAnswered }}
+                              <button
+                                class="btn btn-success" disabled> Allready submitted</button>
+                             {{else}}
                               <a href="/take-assesment/{{this._id}}"
                                 class="btn btn-success">Take Assessment</a>
+                             {{/if}}
+                             
                         </td>
                     </tr>
                     {{/each}}

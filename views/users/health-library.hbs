@@ -1,0 +1,43 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+
+<section>
+    <div class="container">
+        <h1>Health Library</h1>
+       <div class="container">
+    {{#each articles}}
+    <div class="card mb-4">
+        <img src="images/article-images/{{this._id}}.png" style="height: 300px; width:800px" class="card-img-top" alt="Article Image">
+        <div class="card-body">
+            <h5 class="card-title">{{this.title}}</h5>
+            <p class="card-text">By: {{this.author}}</p>
+            <p class="card-text">{{{this.content}}}</p>
+        </div>
+    </div>
+    {{else}}
+    <p>No articles published yet.</p>
+    {{/each}}
+</div>
+    </div>
+</section>

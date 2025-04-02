@@ -18,6 +18,9 @@
                     <p>{{formatDate this.createdAt}}</p>
                     <p>
                         <strong class="">By {{this.by}}<br></strong>
+                        {{#if this.psychiatristName}}
+                        <strong class=""> {{this.psychiatristName}}<br></strong>
+                        {{/if}}
                     </p>
                     <p>{{this.message}}</p>
                 </div>

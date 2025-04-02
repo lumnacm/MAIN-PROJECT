@@ -1,0 +1,80 @@
+
+    <style>
+        .dashboard-banner {
+            background: url('https://cdn.prod.website-files.com/6462847f605fb77f78b2ad89/6462847f605fb77f78b2b3e2_bi-dashboard_header.png') no-repeat center center;
+            background-size: cover;
+            height: 200px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;                                      
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .feature-card {
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: scale(1.05);
+        }
+        .bg-total { background-color: #ff4d4d; color: white; } /* Red */
+        .bg-score { background-color: #28a745; color: white; } /* Green */
+        .bg-pending { background-color: #ffc107; color: white; } /* Yellow */
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Dashboard Banner -->
+        <div class="dashboard-banner">
+            My Dashboard
+        </div>
+
+        <div class="row mt-4">
+            <!-- Total Sessions -->
+            <div class="col-md-3">
+                <div class="feature-card bg-total">
+                    <i class="bi bi-people-fill card-icon"></i>
+                    <h5>Total Sessions</h5>
+                    <p>{{sessions.length}}</p>
+                </div>
+            </div>
+
+            <!-- Total Assessments -->
+            <div class="col-md-3">
+                <div class="feature-card bg-total">
+                    <i class="bi bi-pc-display card-icon"></i>
+                    <h5>Total Assessments</h5>
+                    <p>{{assessment.length}}</p>
+                </div>
+            </div>
+
+            <!-- Assessment Score -->
+            <div class="col-md-3">
+                <div class="feature-card bg-score">
+                    <i class="bi bi-bar-chart-fill card-icon"></i>
+                    <h5>Assessment Score</h5>
+                    <p>{{totalScore}}</p>
+                </div>
+            </div>
+
+            <!-- Pending Assessments -->
+            <div class="col-md-3">
+                <div class="feature-card bg-pending">
+                    <i class="bi bi-exclamation-triangle-fill card-icon"></i>
+                    <h5>Pending Assessments</h5>
+                    <p>{{pendingAssessments}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+

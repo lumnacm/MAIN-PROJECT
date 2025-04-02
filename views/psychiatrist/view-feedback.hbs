@@ -1,0 +1,73 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+<section>
+    <div class="container ">
+        <h5>All Feedbacks</h5> <br>
+        {{!-- <a href="/admin/cancel-all-orders" onclick="return confirm('Are You Sure to Cancel All Orders ?')"
+            class="btn btn-danger mb-2">Cancel All Orders</a> --}}
+
+        <div class="table-responsive" style="overflow: visible;">
+            {{#if feedbacks.length}}
+    {{#each feedbacks}}
+        <div class="card mb-3">
+            <div class="card-body">
+                 <p><small><strong>Date:</strong> {{formatDate this.createdAt}}</small></p>
+                <p><strong>Session Name:</strong> {{ this.sessionName}}</p>
+                <p><strong>User Name:</strong> {{this.user.Fname}} {{this.user.Lname}}</p>
+                <p><strong>Feedback:</strong> {{this.feedbackText}}</p>
+            </div>
+        </div>
+    {{/each}}
+{{else}}
+    <p>No feedback available.</p>
+{{/if}}
+        </div>
+    </div>
+</section>
+
+ 
+
+<script>
+    Handlebars.registerHelper('formatDate', function (date) {
+        var options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(date).toLocaleDateString('en-US', options);
+    });
+
+    Handlebars.registerHelper('getStatus', function (date) {
+        var sessionDate = new Date(date);
+        var currentDate = new Date();
+        var isToday = sessionDate.toDateString() === currentDate.toDateString();
+        if (sessionDate < currentDate && !isToday) {
+            return 'Completed';
+        } else if (isToday) {
+            return 'Ongoing';
+        } else {
+            return 'Upcoming';
+        }
+    });
+
+    Handlebars.registerHelper('eq', function (a, b) {
+        return a === b;
+    });
+</script>

@@ -1,0 +1,118 @@
+<style>
+    .header {
+        background-color: black;
+    }
+
+    @media (min-width: 1200px) {
+
+        .navmenu a,
+        .navmenu a:focus {
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 2px;
+            font-family: var(--nav-font);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            position: relative;
+        }
+    }
+</style>
+
+<section>
+    <div class="container">
+        <h5>Submit Compalint</h5> <br>
+        <div class="table-responsive" style="overflow: visible;">
+            <table class="table border table-bordered" id="table">
+                <thead class="table-dark">
+                    <tr class="align-middle">
+                        <th scope="col">Date</th>
+                        <th scope="col">Psychiatrist</th>
+                        <th scope="col">Session Name</th>
+                        <th scope="col">Booked date and time</th>
+                        <th scope="col">Order Status</th>
+                        <th scope="col">Session Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each sessions}}
+                    <tr class="align-middle">
+                        <td>{{formatDate date}}</td>
+                        <td>{{this.psychiatristDetails.Name}}</td>
+                        <td>{{this.session.wname}}</td>
+                        <td>{{formatDateDD this.deliveryDetails.selecteddate}} {{formatTime this.deliveryDetails.time}} </td>
+                        <td>{{this.status}}</td>
+                        <td>{{getStatus formatDateDD this.deliveryDetails.selecteddate}}</td>
+                        <td>
+                          
+                           <button class="btn btn-primary" onclick="openFeedbackModal('{{this.session.wname}}', '{{this.session.psychiatristId}}', '{{this.userId}}')">Submit</button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for viewing review -->
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="feedbackModalLabel">Submit Complaint</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="feedbackForm">
+            <input type="hidden" id="psychiatristId" name="psychiatristId">
+            <input type="hidden" id="userId" name="userId">
+            <input type="hidden" id="sessionName" name="sessionName">
+
+            <div class="mb-3">
+                <label for="feedbackText" class="form-label">Subject</label>
+                <input type="text" class="form-control" name="subject" >
+                <label for="feedbackText" class="form-label">Your Complaint</label>
+                <textarea id="feedbackText" name="complaints" required class="form-control"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    function openFeedbackModal(sessionName, psychiatristId, userId) {
+        document.getElementById("sessionName").value = sessionName;
+        document.getElementById("psychiatristId").value = psychiatristId;
+        document.getElementById("userId").value = userId;
+        
+        var feedbackModal = new bootstrap.Modal(document.getElementById("feedbackModal"));
+        feedbackModal.show();
+    }
+
+    document.getElementById("feedbackForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const response = await fetch("/complaint/submit", {
+            method: "POST",
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: { "Content-Type": "application/json" }
+        });
+
+        const result = await response.json();
+        alert(result.message);
+        if (result.success) {
+            var feedbackModal = bootstrap.Modal.getInstance(document.getElementById("feedbackModal"));
+            feedbackModal.hide();
+        }
+    });
+</script>

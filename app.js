@@ -4,6 +4,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const hbs = require("express-handlebars");
+const moment = require("moment");
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
 const http = require('http');
@@ -26,6 +27,14 @@ const hbsConfig = {
   helpers: {
     incremented: (index) => index + 1,
     eq: (a, b) => a === b,
+    formatDateTime:(dateTime) => {
+      if (!dateTime) return "Not Available"; // Handle null, undefined, or empty values
+  let formattedDate = moment(dateTime, "YYYY-MM-DDTHH:mm", true); // Strict parsing
+
+  if (!formattedDate.isValid()) return "Not Available"; // Check for invalid dates
+
+  return formattedDate.format("DD-MM-YY hh:mm A");
+  },
     formatDate: (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
     formatTimes: (date) => new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     formatDateDD: function (dateString) {
@@ -69,6 +78,19 @@ const hbsConfig = {
         default:
           return options.inverse(this);
       }
+    },
+    optionText: (options, answerIndex) => {
+      // Ensure answerIndex is valid and options exists
+      if (Array.isArray(options) && answerIndex != null && options[answerIndex] !== undefined) {
+        return options[answerIndex];
+      }
+      return 'No answer provided';
+    },
+    getAnswer: (answers, index) => {
+      if (answers && answers[index] !== undefined) {
+        return answers[index];
+      }
+      return null;
     },
 
     getStatus: (date) => new Date(date) < new Date() ? 'Completed' : 'Upcoming',

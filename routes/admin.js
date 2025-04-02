@@ -25,6 +25,94 @@ router.get("/", verifySignedIn, function (req, res, next) {
   });
 });
 
+router.get("/patient-sessions", verifySignedIn, async function (req, res) {
+  let administator = req.session.admin;
+
+  // Fetch all orders for the current psychiatrist
+  let orders = await adminHelper.getAllOrder();
+
+  // Group orders by userId to get a unique list of patients
+ 
+
+  res.render("admin/patient-sessions", {
+    admin: true, layout: "admin-layout",
+    administator,
+    orders
+  });
+});
+
+router.get('/articles',verifySignedIn, async (req, res) => {
+  let administator = req.session.admin;
+  let articles = await adminHelper.getAllArticles();
+  res.render('admin/articles', { articles ,admin: true, layout: "admin-layout",administator});
+});
+
+router.get('/article/add', (req, res) => {
+  let administator = req.session.admin;
+  res.render('admin/add-article',{admin: true, layout: "admin-layout",administator});
+});
+
+router.post('/article/add', async (req, res) => {
+  let administator = req.session.admin;
+  const { title, banner, author, content, status } = req.body;
+  await adminHelper.addArticle(req.body,(Id, error)=>{
+    if (error) {
+      console.log("Error adding session:", error);
+      res.status(500).send("Failed to add session");
+    } else {
+      let image = req.files.Image;
+      image.mv("./public/images/article-images/" + Id + ".png", (err) => {
+        if (!err) {
+          res.redirect('/admin/articles');
+        } else {
+          console.log("Error saving session image:", err);
+          res.status(500).send("Failed to save session image");
+        }
+      });
+    }
+  })
+  
+});
+
+router.get('/article/edit/:id', async (req, res) => {
+  let administator = req.session.admin;
+  let article = await adminHelper.getArticleById(req.params.id);
+  res.render('admin/edit-article', { article ,admin: true, layout: "admin-layout",administator});
+});
+
+router.post('/article/edit/:id', async (req, res) => {
+  let administator = req.session.admin;
+  await adminHelper.updateArticle(req.params.id, req.body).then(() => {
+    if (req.files) {
+      let image = req.files.Image;
+      if (image) {
+        image.mv("./public/images/article-images/" + req.params.id + ".png");
+      }
+    }
+    res.redirect('/admin/articles');
+  });
+});
+
+router.post('/article/publish/:id', async (req, res) => {
+  console.log("JJJJJJJJ",req.body.status)
+  await adminHelper.publishArticle(req.params.id,req.body.status);
+  res.redirect('/admin/articles');
+});
+
+router.post('/article/unpublish/:id', async (req, res) => {
+  console.log("UMMMMMMMMMMMMMMMMMMM",req.body.status)
+  await adminHelper.unpublishArticle(req.params.id,req.body.status);
+  res.redirect('/admin/articles');
+});
+router.post("/article/delete/:id", async (req, res) => {
+  try {
+    await adminHelper.deleteArticle(req.params.id);
+    res.redirect("/admin/articles");
+  } catch (err) {
+    res.status(500).send("Error deleting article");
+  }
+});
+
 
 
 router.get("/all-notifications", verifySignedIn, async function (req, res) {
@@ -70,6 +158,33 @@ router.post("/approve-psychiatrist/:id", verifySignedIn, async function (req, re
   res.redirect("/admin/all-psychiatrists");
 });
 
+router.get("/admin-profile",verifySignedIn, async function (req, res, next) {
+  let administator = req.session.admin;
+  let adm= db.get().collection(collections.ADMIN_COLLECTION).findOne({_id:ObjectId(administator._id)
+  })
+
+  res.render("admin/profile", { admin: true,layout:"admin-layout", administator,adm });
+});
+
+router.get("/edit-profile",verifySignedIn, async function (req, res, next) {
+  let administator = req.session.admin;
+  let adm= db.get().collection(collections.ADMIN_COLLECTION).findOne({_id:ObjectId(administator._id)
+  })
+
+  res.render("admin/edit-profile", { admin: true,layout:"admin-layout", administator,adm });
+});
+router.post("/edit-profile",verifySignedIn, async function (req, res, next) {
+  let administator = req.session.admin;
+  await db.get().collection(collections.ADMIN_COLLECTION).updateOne(
+    { _id: ObjectId(administator._id) },
+    { $set: { Name: req.body.Name, Email:req.body.Email } }
+  );
+
+
+  res.redirect("/admin/admin-profile")
+});
+
+
 router.post("/reject-psychiatrist/:id", function (req, res) {
   const psychiatristId = req.params.id;
   db.get()
@@ -87,8 +202,9 @@ router.post("/reject-psychiatrist/:id", function (req, res) {
 
 
 router.post("/delete-psychiatrist/:id", verifySignedIn, async function (req, res) {
-  await db.get().collection(collections.PSYCHIATRIST_COLLECTION).deleteOne({ _id: ObjectId(req.params.id) });
-  res.redirect("/admin/psychiatrists/all-psychiatrists");
+  console.log("delllll",req.params.id)
+ await db.get().collection(collections.PSYCHIATRIST_COLLECTION).deleteOne({ _id: ObjectId(req.params.id) });
+  res.redirect("/admin/all-psychiatrists");
 });
 
 ///////ADD psychiatrist/////////////////////                                         
@@ -194,86 +310,16 @@ router.get("/signout", function (req, res) {
   res.redirect("/admin");
 });
 
-router.get("/all-rooms", verifySignedIn, function (req, res) {
-  let administator = req.session.admin;
-  adminHelper.getAllrooms().then((rooms) => {
-    res.render("admin/rooms/all-rooms", { admin: true, layout: "admin-layout", rooms, administator });
-  });
+router.post("/feedback/delete/:id", verifySignedIn, async function (req, res) {
+  await db.get().collection(collections.FEEDBACK_COLLECTION).deleteOne({ _id: ObjectId(req.params.id) });
+  res.redirect("/admin/feedback");
 });
 
-router.get("/add-room", verifySignedIn, function (req, res) {
-  let administator = req.session.admin;
-  res.render("admin/rooms/add-room", { admin: true, layout: "admin-layout", administator });
-});
 
-router.post("/add-room", (req, res) => {
-  // Check if files are uploaded
-  if (!req.files) {
-    return res.status(400).send("No files were uploaded.");
-  }
 
-  // Generate a unique ID for the room
-  adminHelper.addroom(req.body, (id) => {
-    const files = req.files; // Access all uploaded files
-    const fileKeys = Object.keys(files); // Get keys like 'Image1', 'Image2', etc.
-
-    // Loop through the files and save each one
-    let savePromises = fileKeys.map((key, index) => {
-      const image = files[key]; // Access the file
-      const uploadPath = path.join(
-        __dirname,
-        "../public/images/room-images/",
-        `${id}-${index + 1}.png` // Save as <id>-1.png, <id>-2.png, etc.
-      );
-
-      // Move the file to the destination folder
-      return new Promise((resolve, reject) => {
-        image.mv(uploadPath, (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
-    });
-
-    // Wait for all files to be saved
-    Promise.all(savePromises)
-      .then(() => {
-        res.redirect("/admin/rooms/all-rooms");
-      })
-      .catch((err) => {
-        console.error("Error saving images:", err);
-        res.status(500).send("Failed to upload images.");
-      });
-  });
-});
-
-router.get("/edit-room/:id", verifySignedIn, async function (req, res) {
-  let administator = req.session.admin;
-  let roomId = req.params.id;
-  let room = await adminHelper.getroomDetails(roomId);
-  console.log(room);
-  res.render("admin/rooms/edit-room", { admin: true, layout: "admin-layout", room, administator });
-});
-
-router.post("/edit-room/:id", verifySignedIn, function (req, res) {
-  let roomId = req.params.id;
-  adminHelper.updateroom(roomId, req.body).then(() => {
-    if (req.files) {
-      let image = req.files.Image;
-      if (image) {
-        image.mv("./public/images/room-images/" + roomId + ".png");
-      }
-    }
-    res.redirect("/admin/rooms/all-rooms");
-  });
-});
-
-router.post("/delete-room/:id", verifySignedIn, async function (req, res) {
-  await db.get().collection(collections.ROOM_COLLECTION).deleteOne({ _id: ObjectId(req.params.id) });
-  res.redirect("/admin/rooms/all-rooms");
+router.post("/complaints/delete/:id", verifySignedIn, async function (req, res) {
+  await db.get().collection(collections.CMP_COLLECTION).deleteOne({ _id: ObjectId(req.params.id) });
+  res.redirect("/admin/complaints");
 });
 
 
@@ -376,6 +422,70 @@ router.post("/search", verifySignedIn, function (req, res) {
     res.render("admin/search-result", { admin: true, layout: "admin-layout", administator, response });
   });
 });
+// AI Chatbot settings page
+router.get('/ai-chatbot-settings', verifySignedIn, async (req, res) => {
+  let administator = req.session.admin;
+  const settings = await adminHelper.getAIChatbotSettings();
+  res.render('admin/ai-chatbot-settings', { admin: true, layout: 'admin-layout', administator, settings });
+});
+
+
+router.get('/reports', verifySignedIn, async (req, res) => {
+  let administator = req.session.admin;
+  res.render('admin/reports', { admin: true, layout: 'admin-layout', administator });
+});
+
+router.get("/placed-report",verifySignedIn, async (req, res) => {
+ 
+  let administator = req.session.admin;
+ let { fromDate, toDate } = req.query;
+ let orders = await adminHelper.getOrderByStatus("placed", fromDate, toDate);
+ res.render("admin/report-view", { admin: true, layout: "admin-layout",fromDate, toDate, administator, orders, title: "Placed Order Report" });
+});
+
+router.get("/accepted-report",verifySignedIn, async (req, res) => {
+ 
+  let administator = req.session.admin;
+ let { fromDate, toDate } = req.query;
+ let orders = await adminHelper.getOrderByStatus("Accepted", fromDate, toDate);
+ res.render("admin/report-view", { admin: true, layout: "admin-layout",fromDate, toDate, administator, orders, title: "Accepted Order Report" });
+});
+
+router.get("/rejected-report",verifySignedIn, async (req, res) => {
+ 
+  let administator = req.session.admin;
+ let { fromDate, toDate } = req.query;
+ let orders = await adminHelper.getOrderByStatus("Rejected", fromDate, toDate);
+ res.render("admin/report-view", { admin: true, layout: "admin-layout", fromDate, toDate,administator, orders, title: "Rejected Order Report" });
+});
+
+router.get("/order-report",verifySignedIn, async (req, res) => {
+ 
+  let administator = req.session.admin;
+ let { fromDate, toDate } = req.query;
+ let orders = await adminHelper.getOrdersByStatus( fromDate, toDate);
+ res.render("admin/report-view", { admin: true, layout: "admin-layout",fromDate, toDate, administator, orders, title: "Order Report" });
+}); 
+router.get('/complaints', verifySignedIn, async (req, res) => {
+  let administator = req.session.admin;
+  let cmp= await adminHelper.getAllComplaints();
+  res.render('admin/complaints', { admin: true, layout: 'admin-layout', administator,cmp });
+});
+
+
+
+// Update AI Chatbot settings
+router.post('/ai-chatbot-settings', verifySignedIn, async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    await adminHelper.updateAIChatbotSettings({ prompt });
+    res.redirect('/admin/ai-chatbot-settings');
+  } catch (error) {
+    console.error('Error updating AI chatbot settings:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 module.exports = router;

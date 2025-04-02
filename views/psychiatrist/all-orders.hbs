@@ -86,7 +86,7 @@
                             <a href="/psychiatrist/cancel-order/{{this._id}}"
                                 onclick="return confirm('Are You Sure to Cancel This Order ?')"
                                 class="btn btn-danger">Cancel</a> <br>
-                                  <button class="btn btn-success" data-id="{{this._id}}" id="rescheduleBtn">Reschedule</button>
+                                  <button class="btn btn-success rescheduleBtn" data-id="{{this._id}}" id="rescheduleBtn">Reschedule</button>
                               
                             {{/if}}
                         </td>
@@ -124,7 +124,7 @@
    <script>
     // Wait until the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', function() {
-      var rescheduleBtn = document.getElementById('rescheduleBtn');
+      var rescheduleBtns = document.getElementsByClassName('rescheduleBtn');
       var rescheduleModalEl = document.getElementById('rescheduleModal');
       // Create a new Bootstrap modal instance
       var rescheduleModal = new bootstrap.Modal(rescheduleModalEl);
@@ -133,12 +133,14 @@
 
        var orderId;
 
-      // When the "Reschedule" button is clicked, get the data-id and show the modal
-      rescheduleBtn.addEventListener('click', function() {
-        orderId = this.dataset.id; // or: this.getAttribute('data-id');
-        console.log('Order ID:', orderId);  // For debugging purposes
-        rescheduleModal.show();
-      });
+       // Loop through each button and add an event listener
+  for (let i = 0; i < rescheduleBtns.length; i++) {
+    rescheduleBtns[i].addEventListener('click', function() {
+      orderId = this.dataset.id; // Get order ID from clicked button
+      console.log('Order ID:', orderId);  
+      rescheduleModal.show();
+    });
+  }
 
       // Handle OK button click inside the modal
       rescheduleOk.addEventListener('click', function() {
